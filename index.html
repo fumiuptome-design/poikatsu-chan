@@ -256,6 +256,7 @@ function App() {
   const childById = (id) => data.children.find((c) => c.id === id);
   const award = (childId, task) => setData((p) => ({ ...p, children: p.children.map((c) => c.id === childId ? { ...c, points: c.points + task.points } : c), history: [...p.history, { id: uid(), childId, type: "earn", amount: task.points, label: task.title, taskId: task.id, ts: Date.now() }] }));
   const redeem = (childId, reward) => setData((p) => ({ ...p, children: p.children.map((c) => c.id === childId ? { ...c, points: c.points - reward.cost, goalRewardId: c.goalRewardId === reward.id ? null : c.goalRewardId } : c), history: [...p.history, { id: uid(), childId, type: "spend", amount: reward.cost, label: reward.title, ts: Date.now() }] }));
+  const penalize = (childId, reason, amount) => setData((p) => ({ ...p, children: p.children.map((c) => c.id === childId ? { ...c, points: Math.max(0, c.points - amount) } : c), history: [...p.history, { id: uid(), childId, type: "penalty", amount, label: reason, ts: Date.now() }] }));
 
   return (
     <div style={{ fontFamily: FONT, background: C.bg, minHeight: "100vh", color: C.ink }}>
@@ -263,7 +264,7 @@ function App() {
         <Header data={data} mode={mode} setMode={setMode} setTab={setTab} />
         <main style={{ padding: "8px 16px" }}>
           {mode === "parent"
-            ? <ParentArea tab={tab} data={data} setData={setData} selectedChild={selectedChild} setSelectedChild={setSelectedChild} award={award} redeem={redeem} childById={childById} setTab={setTab} manageSub={manageSub} setManageSub={setManageSub} />
+            ? <ParentArea tab={tab} data={data} setData={setData} selectedChild={selectedChild} setSelectedChild={setSelectedChild} award={award} redeem={redeem} penalize={penalize} childById={childById} setTab={setTab} manageSub={manageSub} setManageSub={setManageSub} />
             : <ChildArea tab={tab} data={data} setData={setData} selectedChild={selectedChild} setSelectedChild={setSelectedChild} childById={childById} />}
         </main>
       </div>
@@ -303,7 +304,7 @@ function PinDialog({ correct, onOk, onClose }) {
 
 function ParentArea(props) {
   const { tab } = props;
-  if (tab === "home") return <ParentHome data={props.data} setData={props.setData} award={props.award} />;
+  if (tab === "home") return <ParentHome data={props.data} setData={props.setData} award={props.award} penalize={props.penalize} />;
   if (tab === "reward") return <ParentReward data={props.data} redeem={props.redeem} childById={props.childById} selectedChild={props.selectedChild} setSelectedChild={props.setSelectedChild} />;
   if (tab === "goal") return <GoalView data={props.data} setData={props.setData} redeem={props.redeem} editable />;
   if (tab === "chart") return <RecordView data={props.data} selectedChild={props.selectedChild} setSelectedChild={props.setSelectedChild} />;
@@ -311,8 +312,11 @@ function ParentArea(props) {
   return null;
 }
 
-function ParentHome({ data, setData, award }) {
+function ParentHome({ data, setData, award, penalize }) {
   const [openChild, setOpenChild] = useState(null);
+  const [penaltyFor, setPenaltyFor] = useState(null);
+  const [pReason, setPReason] = useState("");
+  const [pAmt, setPAmt] = useState("1");
   return (
     <React.Fragment>
       {(data.requests || []).length > 0 && <div style={{ marginTop: 14 }}><RewardRequests data={data} setData={setData} /></div>}
@@ -328,22 +332,37 @@ function ParentHome({ data, setData, award }) {
                 <button style={chip(c.color)}>{openChild === c.id ? "閉じる" : "ポイントをつける"}</button>
               </div>
               {openChild === c.id && (
-                <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                  {data.tasks.map((t) => {
-                    const st = t.isHabit ? habitStats(data.history, c.id, t) : null;
-                    return (
-                      <button key={t.id} onClick={() => award(c.id, t)} style={taskBtn}>
-                        <span style={{ fontSize: 22 }}>{t.emoji}</span><span style={{ fontWeight: 700, fontSize: 13 }}>{t.title}</span>
-                        <span style={{ display: "flex", alignItems: "center", gap: 5 }}><span style={{ fontSize: 12, color: "#B07400", fontWeight: 800 }}>+{t.points}P</span>{st && <span style={{ fontSize: 11, color: st.achieved ? C.mint : C.flame, fontWeight: 800 }}>{habitMini(st)}</span>}</span>
-                      </button>
-                    );
-                  })}
-                </div>
+                <React.Fragment>
+                  <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                    {data.tasks.map((t) => {
+                      const st = t.isHabit ? habitStats(data.history, c.id, t) : null;
+                      return (
+                        <button key={t.id} onClick={() => award(c.id, t)} style={taskBtn}>
+                          <span style={{ fontSize: 22 }}>{t.emoji}</span><span style={{ fontWeight: 700, fontSize: 13 }}>{t.title}</span>
+                          <span style={{ display: "flex", alignItems: "center", gap: 5 }}><span style={{ fontSize: 12, color: "#B07400", fontWeight: 800 }}>+{t.points}P</span>{st && <span style={{ fontSize: 11, color: st.achieved ? C.mint : C.flame, fontWeight: 800 }}>{habitMini(st)}</span>}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <button onClick={() => { setPenaltyFor(c.id); setPReason(""); setPAmt("1"); }} style={{ marginTop: 8, width: "100%", border: "1.5px solid " + C.red, background: "#fff", color: C.red, borderRadius: 14, padding: "9px 0", fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: FONT, display: "flex", gap: 4, justifyContent: "center", alignItems: "center" }}>− ポイントをひく（注意）</button>
+                </React.Fragment>
               )}
             </Card>
           );
         })}
       </div>
+      {penaltyFor && (
+        <Overlay onClose={() => setPenaltyFor(null)}>
+          <h3 style={{ marginTop: 0 }}>ポイントをひく</h3>
+          <p style={{ fontSize: 13, color: C.sub, marginTop: 0 }}>{(data.children.find((c) => c.id === penaltyFor) || {}).name} のポイントを引きます。</p>
+          <Label>理由</Label>
+          <input value={pReason} onChange={(e) => setPReason(e.target.value)} style={inputStyle} placeholder="例：ふくをきれいに着る" />
+          <Label>ひくポイント</Label>
+          <input value={pAmt} inputMode="numeric" onChange={(e) => setPAmt(e.target.value.replace(/\D/g, ""))} style={inputStyle} />
+          <p style={{ fontSize: 11, color: C.sub, marginTop: 8 }}>持ちポイントが0より下にはなりません。</p>
+          <button onClick={() => { const a = Number(pAmt) || 0; if (a > 0) { penalize(penaltyFor, pReason.trim() || "ちゅうい", a); setPenaltyFor(null); } }} style={{ ...btn(C.red, "100%"), marginTop: 6 }}>− {Number(pAmt) || 0}P ひく</button>
+        </Overlay>
+      )}
       <RecentHistory data={data} />
     </React.Fragment>
   );
