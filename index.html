@@ -20,7 +20,6 @@
 </style>
 <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body>
 <div id="root"></div>
@@ -35,28 +34,27 @@
   window.addEventListener("error", function (e) { show((e && e.message) || (e && e.error && e.error.message) || "unknown error"); });
   window.addEventListener("load", function () {
     setTimeout(function () {
-      if (typeof React === "undefined" || typeof ReactDOM === "undefined" || typeof Babel === "undefined") {
-        show("部品（React / Babel）の読み込みに失敗しました。ネット未接続の可能性があります。");
+      if (typeof React === "undefined" || typeof ReactDOM === "undefined") {
+        show("部品（React）の読み込みに失敗しました。ネット未接続の可能性があります。");
       }
     }, 5000);
   });
 })();
 </script>
 
-<script type="text/babel" data-presets="react">
+<script>
+"use strict";
 const { useState, useEffect, useRef, useMemo } = React;
-
 const STORAGE_KEY = "poikatsu-app-v1";
 const FONT = "'Hiragino Maru Gothic ProN','Hiragino Kaku Gothic ProN','Rounded Mplus 1c',system-ui,sans-serif";
 const C = {
-  bg: "#F4F6FC", card: "#FFFFFF", ink: "#2A2D4A", sub: "#8C92AC",
-  primary: "#5566F0", mint: "#18B69E", sun: "#FFB12E", grape: "#8A5CF6", red: "#F2585B", flame: "#FF6B3D", line: "#E6E9F3",
+    bg: "#F4F6FC", card: "#FFFFFF", ink: "#2A2D4A", sub: "#8C92AC",
+    primary: "#5566F0", mint: "#18B69E", sun: "#FFB12E", grape: "#8A5CF6", red: "#F2585B", flame: "#FF6B3D", line: "#E6E9F3",
 };
 const KID_COLORS = ["#5566F0", "#18B69E", "#8A5CF6", "#FF8A3D", "#2BA8F0", "#F2585B"];
 const KID_EMOJIS = ["🐱", "🦖", "🐰", "🐻", "🦊", "🐧", "🦁", "🐸"];
 const ONE_DAY = 86400000;
 const LOGO_SRC = "data:image/png;base64,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";
-
 const uid = () => Math.random().toString(36).slice(2, 9);
 const fmtDay = (ts) => { const d = new Date(ts); return (d.getMonth() + 1) + "/" + d.getDate(); };
 const startOfDay = (ts) => { const d = new Date(ts); d.setHours(0, 0, 0, 0); return d.getTime(); };
@@ -65,803 +63,1003 @@ const monthKey = (ts) => { const d = new Date(ts); return d.getFullYear() + "-" 
 const tasksFor = (data, childId) => data.tasks.filter((t) => !t.childIds || t.childIds.length === 0 || t.childIds.includes(childId));
 const isWeekend = (ts) => { const g = new Date(ts).getDay(); return g === 0 || g === 6; };
 const startOfWeek = (ts) => { const d = new Date(startOfDay(ts)); const wd = (d.getDay() + 6) % 7; return startOfDay(d.getTime() - wd * ONE_DAY); };
-
 const earnedOf = (history, id) => history.filter((h) => h.childId === id && h.type === "earn").reduce((s, h) => s + h.amount, 0);
 const levelOf = (earned) => Math.floor(earned / 100) + 1;
 const rewardById = (data, id) => data.rewards.find((r) => r.id === id) || null;
 const goalRewardOf = (data, child) => (child && child.goalRewardId ? rewardById(data, child.goalRewardId) : null);
-
 function ruleOf(task) {
-  const r = task.rule || {};
-  const type = r.type || "daily";
-  return { type, perWeek: Number(r.perWeek) || 3, grace: Number(r.grace) || 0, target: Number(r.target) || (type === "weekly" ? 4 : type === "weekdays" ? 20 : 30) };
+    const r = task.rule || {};
+    const type = r.type || "daily";
+    return { type, perWeek: Number(r.perWeek) || 3, grace: Number(r.grace) || 0, target: Number(r.target) || (type === "weekly" ? 4 : type === "weekdays" ? 20 : 30) };
 }
 function ruleSummary(task) {
-  const r = ruleOf(task);
-  if (r.type === "weekly") return "週" + r.perWeek + "回・" + r.target + "週";
-  if (r.type === "weekdays") return "平日・" + r.target + "平日";
-  return "毎日・" + r.target + "日" + (r.grace ? "（休" + r.grace + "）" : "");
+    const r = ruleOf(task);
+    if (r.type === "weekly")
+        return "週" + r.perWeek + "回・" + r.target + "週";
+    if (r.type === "weekdays")
+        return "平日・" + r.target + "平日";
+    return "毎日・" + r.target + "日" + (r.grace ? "（休" + r.grace + "）" : "");
 }
-
 function habitStats(history, childId, task) {
-  const rule = ruleOf(task);
-  const entries = history.filter((h) => h.childId === childId && h.taskId === task.id && h.type === "earn");
-  const set = new Set(entries.map((e) => dayKey(e.ts)));
-  const end = startOfDay(Date.now());
-  if (rule.type === "weekly") {
-    const perWeek = rule.perWeek, target = rule.target;
-    const thisWeek = startOfWeek(end);
-    const weekCount = (ws) => { let n = 0; for (let i = 0; i < 7; i++) if (set.has(dayKey(ws + i * ONE_DAY))) n++; return n; };
-    let earliest = thisWeek;
-    if (entries.length) earliest = startOfWeek(Math.min.apply(null, entries.map((e) => e.ts)));
-    const weeks = [];
-    for (let w = earliest; w <= thisWeek; w += 7 * ONE_DAY) { const n = weekCount(w); weeks.push({ ws: w, count: n, achieved: n >= perWeek }); }
-    let longest = 0, run = 0;
-    weeks.forEach((wk) => { const isThis = wk.ws === thisWeek; if (wk.achieved) { run++; if (run > longest) longest = run; } else if (!isThis) { run = 0; } });
-    return { type: "weekly", perWeek, target, current: run, longest, achieved: longest >= target, doneToday: set.has(dayKey(end)), thisWeekCount: weekCount(thisWeek), recentWeeks: weeks.slice(-6), unit: "週" };
-  }
-  const weekdaysOnly = rule.type === "weekdays";
-  const grace = rule.grace, target = rule.target;
-  const required = (t) => (weekdaysOnly ? !isWeekend(t) : true);
-  let doneCount = 0, longest = 0, missRun = 0, start = end;
-  if (entries.length) start = startOfDay(Math.min.apply(null, entries.map((e) => e.ts)));
-  for (let t = start; t <= end - ONE_DAY; t += ONE_DAY) {
-    if (!required(t)) continue;
-    if (set.has(dayKey(t))) { doneCount++; missRun = 0; if (doneCount > longest) longest = doneCount; }
-    else { missRun++; if (missRun > grace) doneCount = 0; }
-  }
-  const todayDone = set.has(dayKey(end));
-  let current = doneCount;
-  if (todayDone && required(end)) current = doneCount + 1;
-  if (current > longest) longest = current;
-  const recent = [];
-  for (let i = 34; i >= 0; i--) { const tt = end - i * ONE_DAY; recent.push({ done: set.has(dayKey(tt)), weekend: isWeekend(tt), today: i === 0 }); }
-  return { type: weekdaysOnly ? "weekdays" : "daily", target, grace, current, longest, achieved: longest >= target, doneToday: todayDone, recent, unit: weekdaysOnly ? "平日" : "日" };
+    const rule = ruleOf(task);
+    const entries = history.filter((h) => h.childId === childId && h.taskId === task.id && h.type === "earn");
+    const set = new Set(entries.map((e) => dayKey(e.ts)));
+    const end = startOfDay(Date.now());
+    if (rule.type === "weekly") {
+        const perWeek = rule.perWeek, target = rule.target;
+        const thisWeek = startOfWeek(end);
+        const weekCount = (ws) => { let n = 0; for (let i = 0; i < 7; i++)
+            if (set.has(dayKey(ws + i * ONE_DAY)))
+                n++; return n; };
+        let earliest = thisWeek;
+        if (entries.length)
+            earliest = startOfWeek(Math.min.apply(null, entries.map((e) => e.ts)));
+        const weeks = [];
+        for (let w = earliest; w <= thisWeek; w += 7 * ONE_DAY) {
+            const n = weekCount(w);
+            weeks.push({ ws: w, count: n, achieved: n >= perWeek });
+        }
+        let longest = 0, run = 0;
+        weeks.forEach((wk) => { const isThis = wk.ws === thisWeek; if (wk.achieved) {
+            run++;
+            if (run > longest)
+                longest = run;
+        }
+        else if (!isThis) {
+            run = 0;
+        } });
+        return { type: "weekly", perWeek, target, current: run, longest, achieved: longest >= target, doneToday: set.has(dayKey(end)), thisWeekCount: weekCount(thisWeek), recentWeeks: weeks.slice(-6), unit: "週" };
+    }
+    const weekdaysOnly = rule.type === "weekdays";
+    const grace = rule.grace, target = rule.target;
+    const required = (t) => (weekdaysOnly ? !isWeekend(t) : true);
+    let doneCount = 0, longest = 0, missRun = 0, start = end;
+    if (entries.length)
+        start = startOfDay(Math.min.apply(null, entries.map((e) => e.ts)));
+    for (let t = start; t <= end - ONE_DAY; t += ONE_DAY) {
+        if (!required(t))
+            continue;
+        if (set.has(dayKey(t))) {
+            doneCount++;
+            missRun = 0;
+            if (doneCount > longest)
+                longest = doneCount;
+        }
+        else {
+            missRun++;
+            if (missRun > grace)
+                doneCount = 0;
+        }
+    }
+    const todayDone = set.has(dayKey(end));
+    let current = doneCount;
+    if (todayDone && required(end))
+        current = doneCount + 1;
+    if (current > longest)
+        longest = current;
+    const recent = [];
+    for (let i = 34; i >= 0; i--) {
+        const tt = end - i * ONE_DAY;
+        recent.push({ done: set.has(dayKey(tt)), weekend: isWeekend(tt), today: i === 0 });
+    }
+    return { type: weekdaysOnly ? "weekdays" : "daily", target, grace, current, longest, achieved: longest >= target, doneToday: todayDone, recent, unit: weekdaysOnly ? "平日" : "日" };
 }
-
 function seedData() {
-  const now = Date.now();
-  const day = (n) => now - n * ONE_DAY;
-  const H = []; let k = 0;
-  const add = (childId, type, amount, label, taskId, n) => H.push({ id: "s" + (k++), childId, type, amount, label, taskId, ts: day(n) });
-  const addTs = (childId, type, amount, label, taskId, ts) => H.push({ id: "s" + (k++), childId, type, amount, label, taskId, ts });
-  for (let i = 0; i < 18; i++) add("c1", "earn", 5, "歯みがき", "t7", i);
-  for (let i = 0; i < 8; i++) add("c2", "earn", 5, "歯みがき", "t7", i);
-  for (let i = 0; i < 28; i++) if (!isWeekend(day(i))) add("c1", "earn", 10, "宿題をする", "t1", i);
-  for (let i = 0; i < 12; i++) if (!isWeekend(day(i))) add("c2", "earn", 10, "宿題をする", "t1", i);
-  const mon = startOfWeek(now);
-  for (let w = 0; w < 4; w++) [1, 3, 5].forEach((kk) => { const ts = mon - w * 7 * ONE_DAY + kk * ONE_DAY; if (ts <= now) addTs("c1", "earn", 5, "ピアノの練習", "t8", ts); });
-  for (let w = 0; w < 2; w++) [1, 3, 5].forEach((kk) => { const ts = mon - w * 7 * ONE_DAY + kk * ONE_DAY; if (ts <= now) addTs("c2", "earn", 5, "ピアノの練習", "t8", ts); });
-  add("c1", "earn", 15, "おふろそうじ", null, 2);
-  add("c1", "spend", 20, "すきなおやつ", null, 5);
-  add("c2", "earn", 10, "部屋のかたづけ", null, 4);
-  const bal = { c1: 0, c2: 0 };
-  H.forEach((h) => { bal[h.childId] += h.type === "earn" ? h.amount : -h.amount; });
-  return {
-    pin: "",
-    children: [
-      { id: "c1", name: "みなみ", color: "#5566F0", emoji: "🐱", points: bal.c1, goalRewardId: "r6" },
-      { id: "c2", name: "はると", color: "#18B69E", emoji: "🦖", points: bal.c2, goalRewardId: "r5" },
-    ],
-    tasks: [
-      { id: "t1", title: "宿題をする", points: 10, emoji: "📖", isHabit: true, rule: { type: "weekdays", target: 20, grace: 0 } },
-      { id: "t7", title: "歯みがき", points: 5, emoji: "🪥", isHabit: true, rule: { type: "daily", target: 30, grace: 1 } },
-      { id: "t8", title: "ピアノの練習", points: 5, emoji: "🎹", isHabit: true, rule: { type: "weekly", perWeek: 3, target: 4 } },
-      { id: "t2", title: "音読", points: 10, emoji: "📕" },
-      { id: "t3", title: "お皿を下げる", points: 5, emoji: "🍽️" },
-      { id: "t4", title: "部屋のかたづけ", points: 10, emoji: "🧸" },
-      { id: "t5", title: "おふろそうじ", points: 15, emoji: "🛁" },
-      { id: "t6", title: "くつをそろえる", points: 5, emoji: "👟" },
-    ],
-    rewards: [
-      { id: "r2", title: "すきなおやつ", cost: 20, emoji: "🍪" },
-      { id: "r1", title: "ゲーム30分", cost: 50, emoji: "🎮" },
-      { id: "r3", title: "まんがを1冊", cost: 80, emoji: "📚" },
-      { id: "r4", title: "お出かけ", cost: 100, emoji: "🎡" },
-      { id: "r5", title: "自転車", cost: 200, emoji: "🚲" },
-      { id: "r6", title: "ゲームソフト", cost: 400, emoji: "🕹️" },
-    ],
-    history: H,
-    requests: [],
-    bonusRate: 10,
-    bonusApplied: {},
-  };
+    const now = Date.now();
+    const day = (n) => now - n * ONE_DAY;
+    const H = [];
+    let k = 0;
+    const add = (childId, type, amount, label, taskId, n) => H.push({ id: "s" + (k++), childId, type, amount, label, taskId, ts: day(n) });
+    const addTs = (childId, type, amount, label, taskId, ts) => H.push({ id: "s" + (k++), childId, type, amount, label, taskId, ts });
+    for (let i = 0; i < 18; i++)
+        add("c1", "earn", 5, "歯みがき", "t7", i);
+    for (let i = 0; i < 8; i++)
+        add("c2", "earn", 5, "歯みがき", "t7", i);
+    for (let i = 0; i < 28; i++)
+        if (!isWeekend(day(i)))
+            add("c1", "earn", 10, "宿題をする", "t1", i);
+    for (let i = 0; i < 12; i++)
+        if (!isWeekend(day(i)))
+            add("c2", "earn", 10, "宿題をする", "t1", i);
+    const mon = startOfWeek(now);
+    for (let w = 0; w < 4; w++)
+        [1, 3, 5].forEach((kk) => { const ts = mon - w * 7 * ONE_DAY + kk * ONE_DAY; if (ts <= now)
+            addTs("c1", "earn", 5, "ピアノの練習", "t8", ts); });
+    for (let w = 0; w < 2; w++)
+        [1, 3, 5].forEach((kk) => { const ts = mon - w * 7 * ONE_DAY + kk * ONE_DAY; if (ts <= now)
+            addTs("c2", "earn", 5, "ピアノの練習", "t8", ts); });
+    add("c1", "earn", 15, "おふろそうじ", null, 2);
+    add("c1", "spend", 20, "すきなおやつ", null, 5);
+    add("c2", "earn", 10, "部屋のかたづけ", null, 4);
+    const bal = { c1: 0, c2: 0 };
+    H.forEach((h) => { bal[h.childId] += h.type === "earn" ? h.amount : -h.amount; });
+    return {
+        pin: "",
+        children: [
+            { id: "c1", name: "みなみ", color: "#5566F0", emoji: "🐱", points: bal.c1, goalRewardId: "r6" },
+            { id: "c2", name: "はると", color: "#18B69E", emoji: "🦖", points: bal.c2, goalRewardId: "r5" },
+        ],
+        tasks: [
+            { id: "t1", title: "宿題をする", points: 10, emoji: "📖", isHabit: true, rule: { type: "weekdays", target: 20, grace: 0 } },
+            { id: "t7", title: "歯みがき", points: 5, emoji: "🪥", isHabit: true, rule: { type: "daily", target: 30, grace: 1 } },
+            { id: "t8", title: "ピアノの練習", points: 5, emoji: "🎹", isHabit: true, rule: { type: "weekly", perWeek: 3, target: 4 } },
+            { id: "t2", title: "音読", points: 10, emoji: "📕" },
+            { id: "t3", title: "お皿を下げる", points: 5, emoji: "🍽️" },
+            { id: "t4", title: "部屋のかたづけ", points: 10, emoji: "🧸" },
+            { id: "t5", title: "おふろそうじ", points: 15, emoji: "🛁" },
+            { id: "t6", title: "くつをそろえる", points: 5, emoji: "👟" },
+        ],
+        rewards: [
+            { id: "r2", title: "すきなおやつ", cost: 20, emoji: "🍪" },
+            { id: "r1", title: "ゲーム30分", cost: 50, emoji: "🎮" },
+            { id: "r3", title: "まんがを1冊", cost: 80, emoji: "📚" },
+            { id: "r4", title: "お出かけ", cost: 100, emoji: "🎡" },
+            { id: "r5", title: "自転車", cost: 200, emoji: "🚲" },
+            { id: "r6", title: "ゲームソフト", cost: 400, emoji: "🕹️" },
+        ],
+        history: H,
+        requests: [],
+        bonusRate: 10,
+        bonusApplied: {},
+    };
 }
-
-function loadData() { try { const s = localStorage.getItem(STORAGE_KEY); if (s) return JSON.parse(s); } catch (e) {} return null; }
-function saveData(d) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); } catch (e) {} }
-
+function loadData() { try {
+    const s = localStorage.getItem(STORAGE_KEY);
+    if (s)
+        return JSON.parse(s);
+}
+catch (e) { } return null; }
+function saveData(d) { try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
+}
+catch (e) { } }
 /* ---------- アイコン（自前SVG） ---------- */
 const FILLED = { coins: 1, star: 1, flame: 1, sparkles: 1, award: 1 };
 function Icon({ name, size = 20, color = C.ink, strokeWidth = 2, style }) {
-  const filled = FILLED[name];
-  const p = { width: size, height: size, viewBox: "0 0 24 24", fill: filled ? color : "none", stroke: filled ? "none" : color, strokeWidth, strokeLinecap: "round", strokeLinejoin: "round", style };
-  switch (name) {
-    case "home": return (<svg {...p}><path d="M3 11l9-7 9 7" /><path d="M5 10v10h14V10" /></svg>);
-    case "gift": return (<svg {...p}><rect x="3" y="8" width="18" height="13" rx="2" /><path d="M12 8v13" /><path d="M3 13h18" /><path d="M12 8c-1.5 0-4-.8-4-2.5S10.5 4 12 8" /><path d="M12 8c1.5 0 4-.8 4-2.5S13.5 4 12 8" /></svg>);
-    case "target": return (<svg {...p}><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="1.5" /></svg>);
-    case "chart": return (<svg {...p}><line x1="5" y1="20" x2="5" y2="11" /><line x1="12" y1="20" x2="12" y2="5" /><line x1="19" y1="20" x2="19" y2="14" /></svg>);
-    case "settings": return (<svg {...p}><line x1="4" y1="8" x2="20" y2="8" /><circle cx="15" cy="8" r="2.4" fill={color} stroke="none" /><line x1="4" y1="16" x2="20" y2="16" /><circle cx="9" cy="16" r="2.4" fill={color} stroke="none" /></svg>);
-    case "plus": return (<svg {...p}><path d="M12 5v14M5 12h14" /></svg>);
-    case "star": return (<svg {...p}><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z" /></svg>);
-    case "trash": return (<svg {...p}><path d="M4 7h16" /><path d="M9 7V5h6v2" /><path d="M6.5 7l1 13h9l1-13" /></svg>);
-    case "pencil": return (<svg {...p}><path d="M4 20h4L19 9l-4-4L4 16z" /></svg>);
-    case "lock": return (<svg {...p}><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>);
-    case "unlock": return (<svg {...p}><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 7-2.5" /></svg>);
-    case "x": return (<svg {...p}><path d="M6 6l12 12M18 6L6 18" /></svg>);
-    case "check": return (<svg {...p}><path d="M5 12l5 5 9-11" /></svg>);
-    case "flame": return (<svg {...p}><path d="M12 3c2.5 3.5 5 5.2 5 9a5 5 0 0 1-10 0c0-1.8 1-3 2-4 .2 1.8 1 2.8 2 2.8.8 0 1.3-.6 1.3-1.4C12.3 8.5 11 7 12 3z" /></svg>);
-    case "award": return (<svg {...p}><circle cx="12" cy="9" r="6" /></svg>);
-    case "coins": return (<svg {...p}><ellipse cx="12" cy="7" rx="8" ry="3.3" /><path d="M4 7v6c0 1.9 3.6 3.3 8 3.3s8-1.4 8-3.3V7" /></svg>);
-    case "users": return (<svg {...p}><circle cx="9" cy="8" r="3" /><path d="M3.5 20a5.5 5.5 0 0 1 11 0" /><circle cx="17" cy="9" r="2.4" /><path d="M15 20a5 5 0 0 1 6.5-4.7" /></svg>);
-    case "sparkles": return (<svg {...p}><path d="M12 3l1.7 6.3L20 11l-6.3 1.7L12 19l-1.7-6.3L4 11l6.3-1.7z" /></svg>);
-    default: return null;
-  }
+    const filled = FILLED[name];
+    const p = { width: size, height: size, viewBox: "0 0 24 24", fill: filled ? color : "none", stroke: filled ? "none" : color, strokeWidth, strokeLinecap: "round", strokeLinejoin: "round", style };
+    switch (name) {
+        case "home": return (React.createElement("svg", Object.assign({}, p),
+            React.createElement("path", { d: "M3 11l9-7 9 7" }),
+            React.createElement("path", { d: "M5 10v10h14V10" })));
+        case "gift": return (React.createElement("svg", Object.assign({}, p),
+            React.createElement("rect", { x: "3", y: "8", width: "18", height: "13", rx: "2" }),
+            React.createElement("path", { d: "M12 8v13" }),
+            React.createElement("path", { d: "M3 13h18" }),
+            React.createElement("path", { d: "M12 8c-1.5 0-4-.8-4-2.5S10.5 4 12 8" }),
+            React.createElement("path", { d: "M12 8c1.5 0 4-.8 4-2.5S13.5 4 12 8" })));
+        case "target": return (React.createElement("svg", Object.assign({}, p),
+            React.createElement("circle", { cx: "12", cy: "12", r: "9" }),
+            React.createElement("circle", { cx: "12", cy: "12", r: "5" }),
+            React.createElement("circle", { cx: "12", cy: "12", r: "1.5" })));
+        case "chart": return (React.createElement("svg", Object.assign({}, p),
+            React.createElement("line", { x1: "5", y1: "20", x2: "5", y2: "11" }),
+            React.createElement("line", { x1: "12", y1: "20", x2: "12", y2: "5" }),
+            React.createElement("line", { x1: "19", y1: "20", x2: "19", y2: "14" })));
+        case "settings": return (React.createElement("svg", Object.assign({}, p),
+            React.createElement("line", { x1: "4", y1: "8", x2: "20", y2: "8" }),
+            React.createElement("circle", { cx: "15", cy: "8", r: "2.4", fill: color, stroke: "none" }),
+            React.createElement("line", { x1: "4", y1: "16", x2: "20", y2: "16" }),
+            React.createElement("circle", { cx: "9", cy: "16", r: "2.4", fill: color, stroke: "none" })));
+        case "plus": return (React.createElement("svg", Object.assign({}, p),
+            React.createElement("path", { d: "M12 5v14M5 12h14" })));
+        case "star": return (React.createElement("svg", Object.assign({}, p),
+            React.createElement("path", { d: "M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z" })));
+        case "trash": return (React.createElement("svg", Object.assign({}, p),
+            React.createElement("path", { d: "M4 7h16" }),
+            React.createElement("path", { d: "M9 7V5h6v2" }),
+            React.createElement("path", { d: "M6.5 7l1 13h9l1-13" })));
+        case "pencil": return (React.createElement("svg", Object.assign({}, p),
+            React.createElement("path", { d: "M4 20h4L19 9l-4-4L4 16z" })));
+        case "lock": return (React.createElement("svg", Object.assign({}, p),
+            React.createElement("rect", { x: "5", y: "11", width: "14", height: "9", rx: "2" }),
+            React.createElement("path", { d: "M8 11V8a4 4 0 0 1 8 0v3" })));
+        case "unlock": return (React.createElement("svg", Object.assign({}, p),
+            React.createElement("rect", { x: "5", y: "11", width: "14", height: "9", rx: "2" }),
+            React.createElement("path", { d: "M8 11V8a4 4 0 0 1 7-2.5" })));
+        case "x": return (React.createElement("svg", Object.assign({}, p),
+            React.createElement("path", { d: "M6 6l12 12M18 6L6 18" })));
+        case "check": return (React.createElement("svg", Object.assign({}, p),
+            React.createElement("path", { d: "M5 12l5 5 9-11" })));
+        case "flame": return (React.createElement("svg", Object.assign({}, p),
+            React.createElement("path", { d: "M12 3c2.5 3.5 5 5.2 5 9a5 5 0 0 1-10 0c0-1.8 1-3 2-4 .2 1.8 1 2.8 2 2.8.8 0 1.3-.6 1.3-1.4C12.3 8.5 11 7 12 3z" })));
+        case "award": return (React.createElement("svg", Object.assign({}, p),
+            React.createElement("circle", { cx: "12", cy: "9", r: "6" })));
+        case "coins": return (React.createElement("svg", Object.assign({}, p),
+            React.createElement("ellipse", { cx: "12", cy: "7", rx: "8", ry: "3.3" }),
+            React.createElement("path", { d: "M4 7v6c0 1.9 3.6 3.3 8 3.3s8-1.4 8-3.3V7" })));
+        case "users": return (React.createElement("svg", Object.assign({}, p),
+            React.createElement("circle", { cx: "9", cy: "8", r: "3" }),
+            React.createElement("path", { d: "M3.5 20a5.5 5.5 0 0 1 11 0" }),
+            React.createElement("circle", { cx: "17", cy: "9", r: "2.4" }),
+            React.createElement("path", { d: "M15 20a5 5 0 0 1 6.5-4.7" })));
+        case "sparkles": return (React.createElement("svg", Object.assign({}, p),
+            React.createElement("path", { d: "M12 3l1.7 6.3L20 11l-6.3 1.7L12 19l-1.7-6.3L4 11l6.3-1.7z" })));
+        default: return null;
+    }
 }
-
 /* ---------- 自前ラインチャート ---------- */
 function LineChartMini({ series, color, height = 210 }) {
-  if (!series || series.length < 2) return <p style={{ color: C.sub, textAlign: "center", padding: "30px 0" }}>記録がたまるとグラフが出ます</p>;
-  const W = 320, H = height, padL = 30, padR = 10, padT = 12, padB = 22;
-  const iw = W - padL - padR, ih = H - padT - padB;
-  const max = Math.max.apply(null, series.map((s) => s.total).concat([1]));
-  const X = (i) => padL + (series.length === 1 ? 0 : (i / (series.length - 1)) * iw);
-  const Y = (v) => padT + ih - (v / max) * ih;
-  const line = series.map((s, i) => X(i) + "," + Y(s.total)).join(" ");
-  const area = padL + "," + (padT + ih) + " " + line + " " + X(series.length - 1) + "," + (padT + ih);
-  const last = series[series.length - 1];
-  return (
-    <svg viewBox={"0 0 " + W + " " + H} style={{ width: "100%", height: "auto", display: "block" }}>
-      <line x1={padL} y1={padT} x2={padL} y2={padT + ih} stroke={C.line} />
-      <line x1={padL} y1={padT + ih} x2={W - padR} y2={padT + ih} stroke={C.line} />
-      <line x1={padL} y1={padT + ih / 2} x2={W - padR} y2={padT + ih / 2} stroke={C.line} strokeDasharray="3 4" />
-      <polygon points={area} fill={color} opacity="0.12" />
-      <polyline points={line} fill="none" stroke={color} strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
-      <circle cx={X(series.length - 1)} cy={Y(last.total)} r="4" fill={color} />
-      <text x={padL - 4} y={padT + 4} textAnchor="end" fontSize="10" fill={C.sub}>{max}</text>
-      <text x={padL - 4} y={padT + ih} textAnchor="end" fontSize="10" fill={C.sub}>0</text>
-      <text x={padL} y={H - 6} textAnchor="start" fontSize="10" fill={C.sub}>{series[0].day}</text>
-      <text x={W - padR} y={H - 6} textAnchor="end" fontSize="10" fill={C.sub}>{last.day}</text>
-    </svg>
-  );
+    if (!series || series.length < 2)
+        return React.createElement("p", { style: { color: C.sub, textAlign: "center", padding: "30px 0" } }, "\u8A18\u9332\u304C\u305F\u307E\u308B\u3068\u30B0\u30E9\u30D5\u304C\u51FA\u307E\u3059");
+    const W = 320, H = height, padL = 30, padR = 10, padT = 12, padB = 22;
+    const iw = W - padL - padR, ih = H - padT - padB;
+    const max = Math.max.apply(null, series.map((s) => s.total).concat([1]));
+    const X = (i) => padL + (series.length === 1 ? 0 : (i / (series.length - 1)) * iw);
+    const Y = (v) => padT + ih - (v / max) * ih;
+    const line = series.map((s, i) => X(i) + "," + Y(s.total)).join(" ");
+    const area = padL + "," + (padT + ih) + " " + line + " " + X(series.length - 1) + "," + (padT + ih);
+    const last = series[series.length - 1];
+    return (React.createElement("svg", { viewBox: "0 0 " + W + " " + H, style: { width: "100%", height: "auto", display: "block" } },
+        React.createElement("line", { x1: padL, y1: padT, x2: padL, y2: padT + ih, stroke: C.line }),
+        React.createElement("line", { x1: padL, y1: padT + ih, x2: W - padR, y2: padT + ih, stroke: C.line }),
+        React.createElement("line", { x1: padL, y1: padT + ih / 2, x2: W - padR, y2: padT + ih / 2, stroke: C.line, strokeDasharray: "3 4" }),
+        React.createElement("polygon", { points: area, fill: color, opacity: "0.12" }),
+        React.createElement("polyline", { points: line, fill: "none", stroke: color, strokeWidth: "3", strokeLinejoin: "round", strokeLinecap: "round" }),
+        React.createElement("circle", { cx: X(series.length - 1), cy: Y(last.total), r: "4", fill: color }),
+        React.createElement("text", { x: padL - 4, y: padT + 4, textAnchor: "end", fontSize: "10", fill: C.sub }, max),
+        React.createElement("text", { x: padL - 4, y: padT + ih, textAnchor: "end", fontSize: "10", fill: C.sub }, "0"),
+        React.createElement("text", { x: padL, y: H - 6, textAnchor: "start", fontSize: "10", fill: C.sub }, series[0].day),
+        React.createElement("text", { x: W - padR, y: H - 6, textAnchor: "end", fontSize: "10", fill: C.sub }, last.day)));
 }
-
 /* ---------- 小物UI ---------- */
 function Mascot({ size = 40 }) {
-  return <img src={LOGO_SRC} width={size} height={size} alt="" style={{ borderRadius: size * 0.28, display: "block" }} />;
+    return React.createElement("img", { src: LOGO_SRC, width: size, height: size, alt: "", style: { borderRadius: size * 0.28, display: "block" } });
 }
-function Card({ children, style, onClick }) { return <div onClick={onClick} style={{ background: C.card, borderRadius: 20, padding: 16, boxShadow: "0 4px 16px rgba(60,70,120,0.07)", border: "1px solid " + C.line, ...style }}>{children}</div>; }
-function Pill({ children, color = C.primary }) { return <span style={{ background: color + "1f", color, fontWeight: 700, fontSize: 13, padding: "4px 10px", borderRadius: 999 }}>{children}</span>; }
-function PointBadge({ value, small }) { return <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "#B07400", fontWeight: 800, fontSize: small ? 15 : 20 }}><Icon name="coins" size={small ? 16 : 20} color={C.sun} />{value}<span style={{ fontSize: small ? 11 : 13, marginLeft: 1 }}>P</span></span>; }
-function LevelBadge({ earned }) { return <span style={{ display: "inline-flex", alignItems: "center", gap: 3, background: C.sun + "22", color: "#B07400", fontWeight: 800, fontSize: 12, padding: "3px 9px", borderRadius: 999 }}><Icon name="award" size={13} color={C.sun} />Lv.{levelOf(earned)}</span>; }
-function FlameBadge({ label, achieved }) { return <span style={{ display: "inline-flex", alignItems: "center", gap: 3, background: (achieved ? C.mint : C.flame) + "1f", color: achieved ? C.mint : C.flame, fontWeight: 800, fontSize: 12, padding: "3px 9px", borderRadius: 999 }}>{achieved ? "🏅" : <Icon name="flame" size={12} color={C.flame} />}{label}</span>; }
+function Card({ children, style, onClick }) { return React.createElement("div", { onClick: onClick, style: Object.assign({ background: C.card, borderRadius: 20, padding: 16, boxShadow: "0 4px 16px rgba(60,70,120,0.07)", border: "1px solid " + C.line }, style) }, children); }
+function Pill({ children, color = C.primary }) { return React.createElement("span", { style: { background: color + "1f", color, fontWeight: 700, fontSize: 13, padding: "4px 10px", borderRadius: 999 } }, children); }
+function PointBadge({ value, small }) { return React.createElement("span", { style: { display: "inline-flex", alignItems: "center", gap: 4, color: "#B07400", fontWeight: 800, fontSize: small ? 15 : 20 } },
+    React.createElement(Icon, { name: "coins", size: small ? 16 : 20, color: C.sun }),
+    value,
+    React.createElement("span", { style: { fontSize: small ? 11 : 13, marginLeft: 1 } }, "P")); }
+function LevelBadge({ earned }) { return React.createElement("span", { style: { display: "inline-flex", alignItems: "center", gap: 3, background: C.sun + "22", color: "#B07400", fontWeight: 800, fontSize: 12, padding: "3px 9px", borderRadius: 999 } },
+    React.createElement(Icon, { name: "award", size: 13, color: C.sun }),
+    "Lv.",
+    levelOf(earned)); }
+function FlameBadge({ label, achieved }) { return React.createElement("span", { style: { display: "inline-flex", alignItems: "center", gap: 3, background: (achieved ? C.mint : C.flame) + "1f", color: achieved ? C.mint : C.flame, fontWeight: 800, fontSize: 12, padding: "3px 9px", borderRadius: 999 } },
+    achieved ? "🏅" : React.createElement(Icon, { name: "flame", size: 12, color: C.flame }),
+    label); }
 const habitChipText = (st) => st.achieved ? "🏅 習慣化！" : st.type === "weekly" ? ("今週 " + st.thisWeekCount + "/" + st.perWeek + "回") : ("🔥" + st.current + st.unit);
 const habitMini = (st) => st.achieved ? "🏅" : st.type === "weekly" ? ("今週" + st.thisWeekCount + "/" + st.perWeek) : ("🔥" + st.current);
-
 const inputStyle = { width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 14, border: "2px solid " + C.line, fontFamily: FONT, fontSize: 15, outline: "none" };
 const taskBtn = { display: "flex", flexDirection: "column", alignItems: "center", gap: 3, background: "#F7F8FE", border: "1px solid " + C.line, borderRadius: 14, padding: "10px 6px", cursor: "pointer", fontFamily: FONT };
 const iconBtn = { border: "1px solid " + C.line, background: "#fff", borderRadius: 12, width: 34, height: 34, display: "grid", placeItems: "center", cursor: "pointer" };
 function chip(bg, color) { color = color || "#fff"; return { border: "none", background: bg, color, borderRadius: 999, padding: "7px 14px", fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: FONT, display: "inline-flex", alignItems: "center", gap: 4 }; }
 function btn(bg, width, color) { width = width || "auto"; color = color || "#fff"; return { border: "none", background: bg, color, borderRadius: 14, padding: "12px 16px", fontWeight: 800, fontSize: 15, cursor: "pointer", fontFamily: FONT, width, marginTop: 8 }; }
-
-function Label({ children }) { return <div style={{ fontSize: 13, fontWeight: 700, color: C.sub, margin: "12px 0 4px" }}>{children}</div>; }
+function Label({ children }) { return React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: C.sub, margin: "12px 0 4px" } }, children); }
 function Overlay({ children, onClose }) {
-  return (
-    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(30,32,55,0.4)", zIndex: 50, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
-      <div onClick={(e) => e.stopPropagation()} style={{ background: "#fff", borderRadius: "24px 24px 0 0", padding: "20px 18px calc(28px + env(safe-area-inset-bottom))", width: "100%", maxWidth: 480, fontFamily: FONT, position: "relative", maxHeight: "85vh", overflowY: "auto" }}>
-        <button onClick={onClose} style={{ position: "absolute", top: 14, right: 14, border: "none", background: C.line, borderRadius: "50%", width: 30, height: 30, cursor: "pointer", display: "grid", placeItems: "center" }}><Icon name="x" size={16} color={C.sub} /></button>
-        {children}
-      </div>
-    </div>
-  );
+    return (React.createElement("div", { onClick: onClose, style: { position: "fixed", inset: 0, background: "rgba(30,32,55,0.4)", zIndex: 50, display: "flex", alignItems: "flex-end", justifyContent: "center" } },
+        React.createElement("div", { onClick: (e) => e.stopPropagation(), style: { background: "#fff", borderRadius: "24px 24px 0 0", padding: "20px 18px calc(28px + env(safe-area-inset-bottom))", width: "100%", maxWidth: 480, fontFamily: FONT, position: "relative", maxHeight: "85vh", overflowY: "auto" } },
+            React.createElement("button", { onClick: onClose, style: { position: "absolute", top: 14, right: 14, border: "none", background: C.line, borderRadius: "50%", width: 30, height: 30, cursor: "pointer", display: "grid", placeItems: "center" } },
+                React.createElement(Icon, { name: "x", size: 16, color: C.sub })),
+            children)));
 }
-function SectionTitle({ icon, children, right }) { return <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "18px 2px 10px" }}><div style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 800, fontSize: 16 }}>{icon}{children}</div>{right}</div>; }
-function Avatar({ child, small }) { const s = small ? 38 : 48; return <div style={{ width: s, height: s, borderRadius: "50%", background: child.color + "1f", display: "grid", placeItems: "center", fontSize: small ? 20 : 26, border: "2px solid " + child.color }}>{child.emoji}</div>; }
+function SectionTitle({ icon, children, right }) { return React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", margin: "18px 2px 10px" } },
+    React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6, fontWeight: 800, fontSize: 16 } },
+        icon,
+        children),
+    right); }
+function Avatar({ child, small }) { const s = small ? 38 : 48; return React.createElement("div", { style: { width: s, height: s, borderRadius: "50%", background: child.color + "1f", display: "grid", placeItems: "center", fontSize: small ? 20 : 26, border: "2px solid " + child.color } }, child.emoji); }
 function ChildPicker({ data, selected, onSelect, big }) {
-  return (
-    <div style={{ display: "flex", gap: 8, overflowX: "auto", padding: "4px 2px 8px" }}>
-      {data.children.map((c) => { const on = c.id === selected; return (<button key={c.id} onClick={() => onSelect(c.id)} style={{ border: "none", cursor: "pointer", fontFamily: FONT, flexShrink: 0, background: on ? c.color : "#fff", color: on ? "#fff" : C.ink, borderRadius: 999, padding: big ? "8px 16px" : "6px 12px", display: "flex", alignItems: "center", gap: 6, fontWeight: 700, boxShadow: on ? "0 4px 12px " + c.color + "55" : "none", outline: "1px solid " + (on ? c.color : C.line) }}><span style={{ fontSize: big ? 20 : 16 }}>{c.emoji}</span>{c.name}</button>); })}
-    </div>
-  );
+    return (React.createElement("div", { style: { display: "flex", gap: 8, overflowX: "auto", padding: "4px 2px 8px" } }, data.children.map((c) => { const on = c.id === selected; return (React.createElement("button", { key: c.id, onClick: () => onSelect(c.id), style: { border: "none", cursor: "pointer", fontFamily: FONT, flexShrink: 0, background: on ? c.color : "#fff", color: on ? "#fff" : C.ink, borderRadius: 999, padding: big ? "8px 16px" : "6px 12px", display: "flex", alignItems: "center", gap: 6, fontWeight: 700, boxShadow: on ? "0 4px 12px " + c.color + "55" : "none", outline: "1px solid " + (on ? c.color : C.line) } },
+        React.createElement("span", { style: { fontSize: big ? 20 : 16 } }, c.emoji),
+        c.name)); })));
 }
-function Switch({ on }) { return <span style={{ width: 42, height: 24, borderRadius: 999, background: on ? C.mint : C.line, position: "relative", flexShrink: 0, transition: "background .2s" }}><span style={{ position: "absolute", top: 2, left: on ? 20 : 2, width: 20, height: 20, borderRadius: "50%", background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,0.2)", transition: "left .2s" }} /></span>; }
-
+function Switch({ on }) { return React.createElement("span", { style: { width: 42, height: 24, borderRadius: 999, background: on ? C.mint : C.line, position: "relative", flexShrink: 0, transition: "background .2s" } },
+    React.createElement("span", { style: { position: "absolute", top: 2, left: on ? 20 : 2, width: 20, height: 20, borderRadius: "50%", background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,0.2)", transition: "left .2s" } })); }
 /* ---------- アプリ本体 ---------- */
 function App() {
-  const [data, setData] = useState(() => { const d = loadData() || seedData(); if (!d.requests) d.requests = []; if (d.bonusRate == null) d.bonusRate = 10; if (!d.bonusApplied) d.bonusApplied = {}; return d; });
-  const [mode, setMode] = useState("parent");
-  const [tab, setTab] = useState("home");
-  const [manageSub, setManageSub] = useState("children");
-  const [selectedChild, setSelectedChild] = useState(() => (loadData() || seedData()).children[0].id);
-  useEffect(() => { saveData(data); }, [data]);
-
-  const childById = (id) => data.children.find((c) => c.id === id);
-  const award = (childId, task) => setData((p) => ({ ...p, children: p.children.map((c) => c.id === childId ? { ...c, points: c.points + task.points } : c), history: [...p.history, { id: uid(), childId, type: "earn", amount: task.points, label: task.title, taskId: task.id, ts: Date.now() }] }));
-  const redeem = (childId, reward) => setData((p) => ({ ...p, children: p.children.map((c) => c.id === childId ? { ...c, points: c.points - reward.cost, goalRewardId: c.goalRewardId === reward.id ? null : c.goalRewardId } : c), history: [...p.history, { id: uid(), childId, type: "spend", amount: reward.cost, label: reward.title, ts: Date.now() }] }));
-  const penalize = (childId, reason, amount) => setData((p) => ({ ...p, children: p.children.map((c) => c.id === childId ? { ...c, points: Math.max(0, c.points - amount) } : c), history: [...p.history, { id: uid(), childId, type: "penalty", amount, label: reason, ts: Date.now() }] }));
-  const runBonus = (apply) => setData((p) => {
-    const cm = monthKey(Date.now());
-    const rate = Number(p.bonusRate) || 0;
-    let children = p.children, history = p.history;
-    if (apply) {
-      history = [...p.history];
-      children = p.children.map((c) => {
-        const b = Math.ceil(c.points * rate / 100);
-        if (b > 0) history.push({ id: uid(), childId: c.id, type: "bonus", amount: b, label: "今月のボーナス（利息" + rate + "%）", ts: Date.now() });
-        return b > 0 ? { ...c, points: c.points + b } : c;
-      });
-    }
-    return { ...p, children, history, bonusApplied: { ...(p.bonusApplied || {}), [cm]: true } };
-  });
-
-  return (
-    <div style={{ fontFamily: FONT, background: C.bg, minHeight: "100vh", color: C.ink }}>
-      <div style={{ maxWidth: 480, margin: "0 auto", paddingBottom: "calc(96px + env(safe-area-inset-bottom))" }}>
-        <Header data={data} mode={mode} setMode={setMode} setTab={setTab} />
-        <main style={{ padding: "8px 16px" }}>
-          {mode === "parent"
-            ? <ParentArea tab={tab} data={data} setData={setData} selectedChild={selectedChild} setSelectedChild={setSelectedChild} award={award} redeem={redeem} penalize={penalize} runBonus={runBonus} childById={childById} setTab={setTab} manageSub={manageSub} setManageSub={setManageSub} />
-            : <ChildArea tab={tab} data={data} setData={setData} selectedChild={selectedChild} setSelectedChild={setSelectedChild} childById={childById} />}
-        </main>
-      </div>
-      <BottomNav mode={mode} tab={tab} setTab={setTab} />
-    </div>
-  );
+    const [data, setData] = useState(() => { const d = loadData() || seedData(); if (!d.requests)
+        d.requests = []; if (d.bonusRate == null)
+        d.bonusRate = 10; if (!d.bonusApplied)
+        d.bonusApplied = {}; return d; });
+    const [mode, setMode] = useState("parent");
+    const [tab, setTab] = useState("home");
+    const [manageSub, setManageSub] = useState("children");
+    const [selectedChild, setSelectedChild] = useState(() => (loadData() || seedData()).children[0].id);
+    useEffect(() => { saveData(data); }, [data]);
+    const childById = (id) => data.children.find((c) => c.id === id);
+    const award = (childId, task) => setData((p) => (Object.assign(Object.assign({}, p), { children: p.children.map((c) => c.id === childId ? Object.assign(Object.assign({}, c), { points: c.points + task.points }) : c), history: [...p.history, { id: uid(), childId, type: "earn", amount: task.points, label: task.title, taskId: task.id, ts: Date.now() }] })));
+    const redeem = (childId, reward) => setData((p) => (Object.assign(Object.assign({}, p), { children: p.children.map((c) => c.id === childId ? Object.assign(Object.assign({}, c), { points: c.points - reward.cost, goalRewardId: c.goalRewardId === reward.id ? null : c.goalRewardId }) : c), history: [...p.history, { id: uid(), childId, type: "spend", amount: reward.cost, label: reward.title, ts: Date.now() }] })));
+    const penalize = (childId, reason, amount) => setData((p) => (Object.assign(Object.assign({}, p), { children: p.children.map((c) => c.id === childId ? Object.assign(Object.assign({}, c), { points: Math.max(0, c.points - amount) }) : c), history: [...p.history, { id: uid(), childId, type: "penalty", amount, label: reason, ts: Date.now() }] })));
+    const runBonus = (apply) => setData((p) => {
+        const cm = monthKey(Date.now());
+        const rate = Number(p.bonusRate) || 0;
+        let children = p.children, history = p.history;
+        if (apply) {
+            history = [...p.history];
+            children = p.children.map((c) => {
+                const b = Math.ceil(c.points * rate / 100);
+                if (b > 0)
+                    history.push({ id: uid(), childId: c.id, type: "bonus", amount: b, label: "今月のボーナス（利息" + rate + "%）", ts: Date.now() });
+                return b > 0 ? Object.assign(Object.assign({}, c), { points: c.points + b }) : c;
+            });
+        }
+        return Object.assign(Object.assign({}, p), { children, history, bonusApplied: Object.assign(Object.assign({}, (p.bonusApplied || {})), { [cm]: true }) });
+    });
+    return (React.createElement("div", { style: { fontFamily: FONT, background: C.bg, minHeight: "100vh", color: C.ink } },
+        React.createElement("div", { style: { maxWidth: 480, margin: "0 auto", paddingBottom: "calc(96px + env(safe-area-inset-bottom))" } },
+            React.createElement(Header, { data: data, mode: mode, setMode: setMode, setTab: setTab }),
+            React.createElement("main", { style: { padding: "8px 16px" } }, mode === "parent"
+                ? React.createElement(ParentArea, { tab: tab, data: data, setData: setData, selectedChild: selectedChild, setSelectedChild: setSelectedChild, award: award, redeem: redeem, penalize: penalize, runBonus: runBonus, childById: childById, setTab: setTab, manageSub: manageSub, setManageSub: setManageSub })
+                : React.createElement(ChildArea, { tab: tab, data: data, setData: setData, selectedChild: selectedChild, setSelectedChild: setSelectedChild, childById: childById }))),
+        React.createElement(BottomNav, { mode: mode, tab: tab, setTab: setTab })));
 }
-
 function Header({ data, mode, setMode, setTab }) {
-  const [pinOpen, setPinOpen] = useState(false);
-  const switchTo = (m) => { if (m === "parent" && data.pin) { setPinOpen(true); return; } setMode(m); setTab("home"); };
-  return (
-    <header style={{ padding: "calc(16px + env(safe-area-inset-top)) 16px 4px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}><Mascot size={40} /><div><div style={{ fontWeight: 800, fontSize: 20, lineHeight: 1 }}>ポイ活ちゃん</div><div style={{ fontSize: 11, color: C.sub, marginTop: 3 }}>がんばりをポイントで記録</div></div></div>
-      <div style={{ display: "flex", background: "#fff", borderRadius: 999, padding: 3, border: "1px solid " + C.line }}>
-        {[["parent", "保護者"], ["child", "こども"]].map((it) => { const m = it[0], label = it[1]; return (<button key={m} onClick={() => (m === mode ? null : switchTo(m))} style={{ border: "none", cursor: "pointer", fontFamily: FONT, padding: "6px 13px", borderRadius: 999, fontWeight: 700, fontSize: 13, display: "flex", alignItems: "center", gap: 4, background: mode === m ? C.primary : "transparent", color: mode === m ? "#fff" : C.sub }}>{m === "parent" && (mode === m ? <Icon name="unlock" size={13} color="#fff" /> : (data.pin ? <Icon name="lock" size={13} color={C.sub} /> : null))}{label}</button>); })}
-      </div>
-      {pinOpen && <PinDialog correct={data.pin} onClose={() => setPinOpen(false)} onOk={() => { setPinOpen(false); setMode("parent"); setTab("home"); }} />}
-    </header>
-  );
+    const [pinOpen, setPinOpen] = useState(false);
+    const switchTo = (m) => { if (m === "parent" && data.pin) {
+        setPinOpen(true);
+        return;
+    } setMode(m); setTab("home"); };
+    return (React.createElement("header", { style: { padding: "calc(16px + env(safe-area-inset-top)) 16px 4px", display: "flex", alignItems: "center", justifyContent: "space-between" } },
+        React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } },
+            React.createElement(Mascot, { size: 40 }),
+            React.createElement("div", null,
+                React.createElement("div", { style: { fontWeight: 800, fontSize: 20, lineHeight: 1 } }, "\u30DD\u30A4\u6D3B\u3061\u3083\u3093"),
+                React.createElement("div", { style: { fontSize: 11, color: C.sub, marginTop: 3 } }, "\u304C\u3093\u3070\u308A\u3092\u30DD\u30A4\u30F3\u30C8\u3067\u8A18\u9332"))),
+        React.createElement("div", { style: { display: "flex", background: "#fff", borderRadius: 999, padding: 3, border: "1px solid " + C.line } }, [["parent", "保護者"], ["child", "こども"]].map((it) => { const m = it[0], label = it[1]; return (React.createElement("button", { key: m, onClick: () => (m === mode ? null : switchTo(m)), style: { border: "none", cursor: "pointer", fontFamily: FONT, padding: "6px 13px", borderRadius: 999, fontWeight: 700, fontSize: 13, display: "flex", alignItems: "center", gap: 4, background: mode === m ? C.primary : "transparent", color: mode === m ? "#fff" : C.sub } },
+            m === "parent" && (mode === m ? React.createElement(Icon, { name: "unlock", size: 13, color: "#fff" }) : (data.pin ? React.createElement(Icon, { name: "lock", size: 13, color: C.sub }) : null)),
+            label)); })),
+        pinOpen && React.createElement(PinDialog, { correct: data.pin, onClose: () => setPinOpen(false), onOk: () => { setPinOpen(false); setMode("parent"); setTab("home"); } })));
 }
 function PinDialog({ correct, onOk, onClose }) {
-  const [val, setVal] = useState(""); const [err, setErr] = useState(false);
-  const submit = () => (val === correct ? onOk() : setErr(true));
-  return (
-    <Overlay onClose={onClose}>
-      <div style={{ textAlign: "center" }}>
-        <Icon name="lock" size={28} color={C.primary} /><h3 style={{ margin: "8px 0 4px", fontSize: 18 }}>保護者モードのパスコード</h3>
-        <p style={{ color: C.sub, fontSize: 13, margin: 0 }}>4けたの数字を入力してください</p>
-        <input value={val} inputMode="numeric" maxLength={4} autoFocus onChange={(e) => { setVal(e.target.value.replace(/\D/g, "")); setErr(false); }} onKeyDown={(e) => e.key === "Enter" && submit()} style={{ marginTop: 14, width: 140, textAlign: "center", letterSpacing: 8, fontSize: 24, padding: "8px 0", borderRadius: 14, fontFamily: FONT, border: "2px solid " + (err ? C.red : C.line), outline: "none" }} />
-        {err && <p style={{ color: C.red, fontSize: 12, marginTop: 6 }}>パスコードがちがいます</p>}
-        <button onClick={submit} style={btn(C.primary, "100%")}>解除する</button>
-      </div>
-    </Overlay>
-  );
+    const [val, setVal] = useState("");
+    const [err, setErr] = useState(false);
+    const submit = () => (val === correct ? onOk() : setErr(true));
+    return (React.createElement(Overlay, { onClose: onClose },
+        React.createElement("div", { style: { textAlign: "center" } },
+            React.createElement(Icon, { name: "lock", size: 28, color: C.primary }),
+            React.createElement("h3", { style: { margin: "8px 0 4px", fontSize: 18 } }, "\u4FDD\u8B77\u8005\u30E2\u30FC\u30C9\u306E\u30D1\u30B9\u30B3\u30FC\u30C9"),
+            React.createElement("p", { style: { color: C.sub, fontSize: 13, margin: 0 } }, "4\u3051\u305F\u306E\u6570\u5B57\u3092\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044"),
+            React.createElement("input", { value: val, inputMode: "numeric", maxLength: 4, autoFocus: true, onChange: (e) => { setVal(e.target.value.replace(/\D/g, "")); setErr(false); }, onKeyDown: (e) => e.key === "Enter" && submit(), style: { marginTop: 14, width: 140, textAlign: "center", letterSpacing: 8, fontSize: 24, padding: "8px 0", borderRadius: 14, fontFamily: FONT, border: "2px solid " + (err ? C.red : C.line), outline: "none" } }),
+            err && React.createElement("p", { style: { color: C.red, fontSize: 12, marginTop: 6 } }, "\u30D1\u30B9\u30B3\u30FC\u30C9\u304C\u3061\u304C\u3044\u307E\u3059"),
+            React.createElement("button", { onClick: submit, style: btn(C.primary, "100%") }, "\u89E3\u9664\u3059\u308B"))));
 }
-
 function ParentArea(props) {
-  const { tab } = props;
-  if (tab === "home") return <ParentHome data={props.data} setData={props.setData} award={props.award} penalize={props.penalize} runBonus={props.runBonus} />;
-  if (tab === "reward") return <ParentReward data={props.data} redeem={props.redeem} childById={props.childById} selectedChild={props.selectedChild} setSelectedChild={props.setSelectedChild} />;
-  if (tab === "goal") return <GoalView data={props.data} setData={props.setData} redeem={props.redeem} editable />;
-  if (tab === "chart") return <RecordView data={props.data} selectedChild={props.selectedChild} setSelectedChild={props.setSelectedChild} />;
-  if (tab === "manage") return <Manage data={props.data} setData={props.setData} sub={props.manageSub} setSub={props.setManageSub} />;
-  return null;
+    const { tab } = props;
+    if (tab === "home")
+        return React.createElement(ParentHome, { data: props.data, setData: props.setData, award: props.award, penalize: props.penalize, runBonus: props.runBonus });
+    if (tab === "reward")
+        return React.createElement(ParentReward, { data: props.data, redeem: props.redeem, childById: props.childById, selectedChild: props.selectedChild, setSelectedChild: props.setSelectedChild });
+    if (tab === "goal")
+        return React.createElement(GoalView, { data: props.data, setData: props.setData, redeem: props.redeem, editable: true });
+    if (tab === "chart")
+        return React.createElement(RecordView, { data: props.data, selectedChild: props.selectedChild, setSelectedChild: props.setSelectedChild });
+    if (tab === "manage")
+        return React.createElement(Manage, { data: props.data, setData: props.setData, sub: props.manageSub, setSub: props.setManageSub });
+    return null;
 }
-
 function ParentHome({ data, setData, award, penalize, runBonus }) {
-  const [openChild, setOpenChild] = useState(null);
-  const [penaltyFor, setPenaltyFor] = useState(null);
-  const [pReason, setPReason] = useState("");
-  const [pAmt, setPAmt] = useState("1");
-  const cm = monthKey(Date.now());
-  const needBonus = !((data.bonusApplied || {})[cm]);
-  const rate = Number(data.bonusRate) || 0;
-  return (
-    <React.Fragment>
-      {needBonus && rate > 0 && (
-        <Card style={{ marginTop: 12, border: "1.5px solid " + C.sun, background: "#FFFBF0" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 800 }}><Icon name="coins" size={18} color={C.sun} />今月のボーナス（利息{rate}%）</div>
-          <p style={{ fontSize: 13, color: C.sub, margin: "8px 0 0" }}>月が変わりました。今もっているポイントの{rate}%（切り上げ）をボーナスとして加えられます。使わずに貯めるほど増える、貯金・投資の練習になります。</p>
-          <div style={{ display: "grid", gap: 4, margin: "10px 0" }}>
-            {data.children.map((c) => { const b = Math.ceil(c.points * rate / 100); return (<div key={c.id} style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}><span>{c.emoji} {c.name}（{c.points}P）</span><span style={{ fontWeight: 800, color: C.mint }}>＋{b}P</span></div>); })}
-          </div>
-          <div style={{ display: "flex", gap: 8 }}>
-            <button onClick={() => runBonus(false)} style={btn("#EEF0F7", "40%", C.ink)}>今月はつけない</button>
-            <button onClick={() => runBonus(true)} style={btn(C.sun, "60%")}>ボーナスをつける</button>
-          </div>
-        </Card>
-      )}
-      {(data.requests || []).length > 0 && <div style={{ marginTop: 14 }}><RewardRequests data={data} setData={setData} /></div>}
-      <SectionTitle icon={<Icon name="sparkles" size={18} color={C.sun} />}>お手伝いを記録</SectionTitle>
-      <p style={{ fontSize: 13, color: C.sub, margin: "0 2px 10px" }}>お子さんを選び、できたことをタップするとポイントがたまります。習慣に設定した項目は続けた記録も同時に残ります。</p>
-      <div style={{ display: "grid", gap: 12 }}>
-        {data.children.map((c) => {
-          const earned = earnedOf(data.history, c.id);
-          return (
-            <Card key={c.id}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }} onClick={() => setOpenChild(openChild === c.id ? null : c.id)}>
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}><Avatar child={c} /><div><div style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ fontWeight: 800, fontSize: 17 }}>{c.name}</span><LevelBadge earned={earned} /></div><PointBadge value={c.points} small /></div></div>
-                <button style={chip(c.color)}>{openChild === c.id ? "閉じる" : "ポイントをつける"}</button>
-              </div>
-              {openChild === c.id && (
-                <React.Fragment>
-                  <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                    {tasksFor(data, c.id).map((t) => {
-                      const st = t.isHabit ? habitStats(data.history, c.id, t) : null;
-                      return (
-                        <button key={t.id} onClick={() => award(c.id, t)} style={taskBtn}>
-                          <span style={{ fontSize: 22 }}>{t.emoji}</span><span style={{ fontWeight: 700, fontSize: 13 }}>{t.title}</span>
-                          <span style={{ display: "flex", alignItems: "center", gap: 5 }}><span style={{ fontSize: 12, color: "#B07400", fontWeight: 800 }}>+{t.points}P</span>{st && <span style={{ fontSize: 11, color: st.achieved ? C.mint : C.flame, fontWeight: 800 }}>{habitMini(st)}</span>}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <button onClick={() => { setPenaltyFor(c.id); setPReason(""); setPAmt("1"); }} style={{ marginTop: 8, width: "100%", border: "1.5px solid " + C.red, background: "#fff", color: C.red, borderRadius: 14, padding: "9px 0", fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: FONT, display: "flex", gap: 4, justifyContent: "center", alignItems: "center" }}>− ポイントをひく（注意）</button>
-                </React.Fragment>
-              )}
-            </Card>
-          );
-        })}
-      </div>
-      {penaltyFor && (
-        <Overlay onClose={() => setPenaltyFor(null)}>
-          <h3 style={{ marginTop: 0 }}>ポイントをひく</h3>
-          <p style={{ fontSize: 13, color: C.sub, marginTop: 0 }}>{(data.children.find((c) => c.id === penaltyFor) || {}).name} のポイントを引きます。</p>
-          <Label>理由</Label>
-          <input value={pReason} onChange={(e) => setPReason(e.target.value)} style={inputStyle} placeholder="例：ふくをきれいに着る" />
-          <Label>ひくポイント</Label>
-          <input value={pAmt} inputMode="numeric" onChange={(e) => setPAmt(e.target.value.replace(/\D/g, ""))} style={inputStyle} />
-          <p style={{ fontSize: 11, color: C.sub, marginTop: 8 }}>持ちポイントが0より下にはなりません。</p>
-          <button onClick={() => { const a = Number(pAmt) || 0; if (a > 0) { penalize(penaltyFor, pReason.trim() || "ちゅうい", a); setPenaltyFor(null); } }} style={{ ...btn(C.red, "100%"), marginTop: 6 }}>− {Number(pAmt) || 0}P ひく</button>
-        </Overlay>
-      )}
-      <RecentHistory data={data} />
-    </React.Fragment>
-  );
+    const [openChild, setOpenChild] = useState(null);
+    const [penaltyFor, setPenaltyFor] = useState(null);
+    const [pReason, setPReason] = useState("");
+    const [pAmt, setPAmt] = useState("1");
+    const cm = monthKey(Date.now());
+    const needBonus = !((data.bonusApplied || {})[cm]);
+    const rate = Number(data.bonusRate) || 0;
+    return (React.createElement(React.Fragment, null,
+        needBonus && rate > 0 && (React.createElement(Card, { style: { marginTop: 12, border: "1.5px solid " + C.sun, background: "#FFFBF0" } },
+            React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6, fontWeight: 800 } },
+                React.createElement(Icon, { name: "coins", size: 18, color: C.sun }),
+                "\u4ECA\u6708\u306E\u30DC\u30FC\u30CA\u30B9\uFF08\u5229\u606F",
+                rate,
+                "%\uFF09"),
+            React.createElement("p", { style: { fontSize: 13, color: C.sub, margin: "8px 0 0" } },
+                "\u6708\u304C\u5909\u308F\u308A\u307E\u3057\u305F\u3002\u4ECA\u3082\u3063\u3066\u3044\u308B\u30DD\u30A4\u30F3\u30C8\u306E",
+                rate,
+                "%\uFF08\u5207\u308A\u4E0A\u3052\uFF09\u3092\u30DC\u30FC\u30CA\u30B9\u3068\u3057\u3066\u52A0\u3048\u3089\u308C\u307E\u3059\u3002\u4F7F\u308F\u305A\u306B\u8CAF\u3081\u308B\u307B\u3069\u5897\u3048\u308B\u3001\u8CAF\u91D1\u30FB\u6295\u8CC7\u306E\u7DF4\u7FD2\u306B\u306A\u308A\u307E\u3059\u3002"),
+            React.createElement("div", { style: { display: "grid", gap: 4, margin: "10px 0" } }, data.children.map((c) => { const b = Math.ceil(c.points * rate / 100); return (React.createElement("div", { key: c.id, style: { display: "flex", justifyContent: "space-between", fontSize: 13 } },
+                React.createElement("span", null,
+                    c.emoji,
+                    " ",
+                    c.name,
+                    "\uFF08",
+                    c.points,
+                    "P\uFF09"),
+                React.createElement("span", { style: { fontWeight: 800, color: C.mint } },
+                    "\uFF0B",
+                    b,
+                    "P"))); })),
+            React.createElement("div", { style: { display: "flex", gap: 8 } },
+                React.createElement("button", { onClick: () => runBonus(false), style: btn("#EEF0F7", "40%", C.ink) }, "\u4ECA\u6708\u306F\u3064\u3051\u306A\u3044"),
+                React.createElement("button", { onClick: () => runBonus(true), style: btn(C.sun, "60%") }, "\u30DC\u30FC\u30CA\u30B9\u3092\u3064\u3051\u308B")))),
+        (data.requests || []).length > 0 && React.createElement("div", { style: { marginTop: 14 } },
+            React.createElement(RewardRequests, { data: data, setData: setData })),
+        React.createElement(SectionTitle, { icon: React.createElement(Icon, { name: "sparkles", size: 18, color: C.sun }) }, "\u304A\u624B\u4F1D\u3044\u3092\u8A18\u9332"),
+        React.createElement("p", { style: { fontSize: 13, color: C.sub, margin: "0 2px 10px" } }, "\u304A\u5B50\u3055\u3093\u3092\u9078\u3073\u3001\u3067\u304D\u305F\u3053\u3068\u3092\u30BF\u30C3\u30D7\u3059\u308B\u3068\u30DD\u30A4\u30F3\u30C8\u304C\u305F\u307E\u308A\u307E\u3059\u3002\u7FD2\u6163\u306B\u8A2D\u5B9A\u3057\u305F\u9805\u76EE\u306F\u7D9A\u3051\u305F\u8A18\u9332\u3082\u540C\u6642\u306B\u6B8B\u308A\u307E\u3059\u3002"),
+        React.createElement("div", { style: { display: "grid", gap: 12 } }, data.children.map((c) => {
+            const earned = earnedOf(data.history, c.id);
+            return (React.createElement(Card, { key: c.id },
+                React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between" }, onClick: () => setOpenChild(openChild === c.id ? null : c.id) },
+                    React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 12 } },
+                        React.createElement(Avatar, { child: c }),
+                        React.createElement("div", null,
+                            React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6 } },
+                                React.createElement("span", { style: { fontWeight: 800, fontSize: 17 } }, c.name),
+                                React.createElement(LevelBadge, { earned: earned })),
+                            React.createElement(PointBadge, { value: c.points, small: true }))),
+                    React.createElement("button", { style: chip(c.color) }, openChild === c.id ? "閉じる" : "ポイントをつける")),
+                openChild === c.id && (React.createElement(React.Fragment, null,
+                    React.createElement("div", { style: { marginTop: 14, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 } }, tasksFor(data, c.id).map((t) => {
+                        const st = t.isHabit ? habitStats(data.history, c.id, t) : null;
+                        return (React.createElement("button", { key: t.id, onClick: () => award(c.id, t), style: taskBtn },
+                            React.createElement("span", { style: { fontSize: 22 } }, t.emoji),
+                            React.createElement("span", { style: { fontWeight: 700, fontSize: 13 } }, t.title),
+                            React.createElement("span", { style: { display: "flex", alignItems: "center", gap: 5 } },
+                                React.createElement("span", { style: { fontSize: 12, color: "#B07400", fontWeight: 800 } },
+                                    "+",
+                                    t.points,
+                                    "P"),
+                                st && React.createElement("span", { style: { fontSize: 11, color: st.achieved ? C.mint : C.flame, fontWeight: 800 } }, habitMini(st)))));
+                    })),
+                    React.createElement("button", { onClick: () => { setPenaltyFor(c.id); setPReason(""); setPAmt("1"); }, style: { marginTop: 8, width: "100%", border: "1.5px solid " + C.red, background: "#fff", color: C.red, borderRadius: 14, padding: "9px 0", fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: FONT, display: "flex", gap: 4, justifyContent: "center", alignItems: "center" } }, "\u2212 \u30DD\u30A4\u30F3\u30C8\u3092\u3072\u304F\uFF08\u6CE8\u610F\uFF09")))));
+        })),
+        penaltyFor && (React.createElement(Overlay, { onClose: () => setPenaltyFor(null) },
+            React.createElement("h3", { style: { marginTop: 0 } }, "\u30DD\u30A4\u30F3\u30C8\u3092\u3072\u304F"),
+            React.createElement("p", { style: { fontSize: 13, color: C.sub, marginTop: 0 } },
+                (data.children.find((c) => c.id === penaltyFor) || {}).name,
+                " \u306E\u30DD\u30A4\u30F3\u30C8\u3092\u5F15\u304D\u307E\u3059\u3002"),
+            React.createElement(Label, null, "\u7406\u7531"),
+            React.createElement("input", { value: pReason, onChange: (e) => setPReason(e.target.value), style: inputStyle, placeholder: "\u4F8B\uFF1A\u3075\u304F\u3092\u304D\u308C\u3044\u306B\u7740\u308B" }),
+            React.createElement(Label, null, "\u3072\u304F\u30DD\u30A4\u30F3\u30C8"),
+            React.createElement("input", { value: pAmt, inputMode: "numeric", onChange: (e) => setPAmt(e.target.value.replace(/\D/g, "")), style: inputStyle }),
+            React.createElement("p", { style: { fontSize: 11, color: C.sub, marginTop: 8 } }, "\u6301\u3061\u30DD\u30A4\u30F3\u30C8\u304C0\u3088\u308A\u4E0B\u306B\u306F\u306A\u308A\u307E\u305B\u3093\u3002"),
+            React.createElement("button", { onClick: () => { const a = Number(pAmt) || 0; if (a > 0) {
+                    penalize(penaltyFor, pReason.trim() || "ちゅうい", a);
+                    setPenaltyFor(null);
+                } }, style: Object.assign(Object.assign({}, btn(C.red, "100%")), { marginTop: 6 }) },
+                "\u2212 ",
+                Number(pAmt) || 0,
+                "P \u3072\u304F"))),
+        React.createElement(RecentHistory, { data: data })));
 }
-
 function ParentReward({ data, redeem, childById, selectedChild, setSelectedChild }) {
-  const [confirm, setConfirm] = useState(null);
-  const child = childById(selectedChild) || data.children[0];
-  return (
-    <React.Fragment>
-      <SectionTitle icon={<Icon name="gift" size={18} color={C.grape} />}>ごほうび交換</SectionTitle>
-      <ChildPicker data={data} selected={selectedChild} onSelect={setSelectedChild} />
-      <div style={{ margin: "4px 2px 12px", display: "flex", alignItems: "center", gap: 6 }}><span style={{ color: C.sub, fontSize: 13 }}>{child.name} の持ちポイント</span><PointBadge value={child.points} small /></div>
-      <div style={{ display: "grid", gap: 10 }}>
-        {data.rewards.map((r) => {
-          const ok = child.points >= r.cost; const isGoal = child.goalRewardId === r.id;
-          return (
-            <Card key={r.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", opacity: ok ? 1 : 0.55, border: isGoal ? "1.5px solid " + C.primary : "1px solid " + C.line }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}><span style={{ fontSize: 26 }}>{r.emoji}</span><div><div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>{r.title}{isGoal && <Pill color={C.primary}>🎯 目標</Pill>}</div><PointBadge value={r.cost} small /></div></div>
-              <button disabled={!ok} onClick={() => setConfirm(r)} style={{ ...chip(ok ? C.grape : C.sub), cursor: ok ? "pointer" : "not-allowed" }}>交換</button>
-            </Card>
-          );
-        })}
-      </div>
-      <p style={{ fontSize: 12, color: C.sub, margin: "12px 2px 0" }}>高いごほうびは「目標」に設定すると、コツコツためる楽しみになります。</p>
-      {confirm && (
-        <Overlay onClose={() => setConfirm(null)}>
-          <div style={{ textAlign: "center" }}><span style={{ fontSize: 40 }}>{confirm.emoji}</span><h3 style={{ margin: "8px 0" }}>「{confirm.title}」と交換する？</h3><p style={{ color: C.sub, fontSize: 14 }}>{child.name} のポイントから {confirm.cost}P 減ります{child.goalRewardId === confirm.id ? "（目標を達成します）" : ""}</p>
-            <div style={{ display: "flex", gap: 8, marginTop: 12 }}><button onClick={() => setConfirm(null)} style={btn("#EEF0F7", "50%", C.ink)}>やめる</button><button onClick={() => { redeem(child.id, confirm); setConfirm(null); }} style={btn(C.grape, "50%")}>交換する</button></div>
-          </div>
-        </Overlay>
-      )}
-    </React.Fragment>
-  );
+    const [confirm, setConfirm] = useState(null);
+    const child = childById(selectedChild) || data.children[0];
+    return (React.createElement(React.Fragment, null,
+        React.createElement(SectionTitle, { icon: React.createElement(Icon, { name: "gift", size: 18, color: C.grape }) }, "\u3054\u307B\u3046\u3073\u4EA4\u63DB"),
+        React.createElement(ChildPicker, { data: data, selected: selectedChild, onSelect: setSelectedChild }),
+        React.createElement("div", { style: { margin: "4px 2px 12px", display: "flex", alignItems: "center", gap: 6 } },
+            React.createElement("span", { style: { color: C.sub, fontSize: 13 } },
+                child.name,
+                " \u306E\u6301\u3061\u30DD\u30A4\u30F3\u30C8"),
+            React.createElement(PointBadge, { value: child.points, small: true })),
+        React.createElement("div", { style: { display: "grid", gap: 10 } }, data.rewards.map((r) => {
+            const ok = child.points >= r.cost;
+            const isGoal = child.goalRewardId === r.id;
+            return (React.createElement(Card, { key: r.id, style: { display: "flex", alignItems: "center", justifyContent: "space-between", opacity: ok ? 1 : 0.55, border: isGoal ? "1.5px solid " + C.primary : "1px solid " + C.line } },
+                React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 12 } },
+                    React.createElement("span", { style: { fontSize: 26 } }, r.emoji),
+                    React.createElement("div", null,
+                        React.createElement("div", { style: { fontWeight: 700, display: "flex", alignItems: "center", gap: 6 } },
+                            r.title,
+                            isGoal && React.createElement(Pill, { color: C.primary }, "\uD83C\uDFAF \u76EE\u6A19")),
+                        React.createElement(PointBadge, { value: r.cost, small: true }))),
+                React.createElement("button", { disabled: !ok, onClick: () => setConfirm(r), style: Object.assign(Object.assign({}, chip(ok ? C.grape : C.sub)), { cursor: ok ? "pointer" : "not-allowed" }) }, "\u4EA4\u63DB")));
+        })),
+        React.createElement("p", { style: { fontSize: 12, color: C.sub, margin: "12px 2px 0" } }, "\u9AD8\u3044\u3054\u307B\u3046\u3073\u306F\u300C\u76EE\u6A19\u300D\u306B\u8A2D\u5B9A\u3059\u308B\u3068\u3001\u30B3\u30C4\u30B3\u30C4\u305F\u3081\u308B\u697D\u3057\u307F\u306B\u306A\u308A\u307E\u3059\u3002"),
+        confirm && (React.createElement(Overlay, { onClose: () => setConfirm(null) },
+            React.createElement("div", { style: { textAlign: "center" } },
+                React.createElement("span", { style: { fontSize: 40 } }, confirm.emoji),
+                React.createElement("h3", { style: { margin: "8px 0" } },
+                    "\u300C",
+                    confirm.title,
+                    "\u300D\u3068\u4EA4\u63DB\u3059\u308B\uFF1F"),
+                React.createElement("p", { style: { color: C.sub, fontSize: 14 } },
+                    child.name,
+                    " \u306E\u30DD\u30A4\u30F3\u30C8\u304B\u3089 ",
+                    confirm.cost,
+                    "P \u6E1B\u308A\u307E\u3059",
+                    child.goalRewardId === confirm.id ? "（目標を達成します）" : ""),
+                React.createElement("div", { style: { display: "flex", gap: 8, marginTop: 12 } },
+                    React.createElement("button", { onClick: () => setConfirm(null), style: btn("#EEF0F7", "50%", C.ink) }, "\u3084\u3081\u308B"),
+                    React.createElement("button", { onClick: () => { redeem(child.id, confirm); setConfirm(null); }, style: btn(C.grape, "50%") }, "\u4EA4\u63DB\u3059\u308B")))))));
 }
-
 function ChildArea({ tab, data, setData, selectedChild, setSelectedChild, childById }) {
-  const child = childById(selectedChild) || data.children[0];
-  return (
-    <React.Fragment>
-      <ChildPicker data={data} selected={child.id} onSelect={setSelectedChild} big />
-      {tab === "home" && <ChildHome data={data} child={child} />}
-      {tab === "reward" && <ChildReward data={data} setData={setData} child={child} />}
-      {tab === "chart" && <RecordView data={data} selectedChild={child.id} setSelectedChild={setSelectedChild} hidePicker />}
-    </React.Fragment>
-  );
+    const child = childById(selectedChild) || data.children[0];
+    return (React.createElement(React.Fragment, null,
+        React.createElement(ChildPicker, { data: data, selected: child.id, onSelect: setSelectedChild, big: true }),
+        tab === "home" && React.createElement(ChildHome, { data: data, child: child }),
+        tab === "reward" && React.createElement(ChildReward, { data: data, setData: setData, child: child }),
+        tab === "chart" && React.createElement(RecordView, { data: data, selectedChild: child.id, setSelectedChild: setSelectedChild, hidePicker: true })));
 }
-
 function ChildHome({ data, child }) {
-  const goal = goalRewardOf(data, child);
-  const pct = goal ? Math.min(100, Math.round((child.points / goal.cost) * 100)) : 0;
-  const reached = goal && child.points >= goal.cost;
-  const earned = earnedOf(data.history, child.id);
-  const toNext = 100 - (earned % 100);
-  const habits = tasksFor(data, child.id).filter((t) => t.isHabit);
-  return (
-    <React.Fragment>
-      <Card style={{ background: "linear-gradient(135deg, " + child.color + ", " + child.color + "cc)", color: "#fff", textAlign: "center", padding: 24, marginTop: 8 }}>
-        <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.22)", padding: "3px 12px", borderRadius: 999, fontWeight: 800, fontSize: 13 }}><Icon name="award" size={15} color="#FFE08A" />レベル {levelOf(earned)}</div>
-        <div style={{ fontSize: 38, lineHeight: 1, marginTop: 8 }}>{child.emoji}</div>
-        <div style={{ fontWeight: 800, fontSize: 18, marginTop: 6 }}>{child.name}</div>
-        <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 10, background: "rgba(255,255,255,0.22)", padding: "8px 18px", borderRadius: 999 }}><Icon name="coins" size={26} color="#FFE08A" /><span style={{ fontSize: 34, fontWeight: 900 }}>{child.points}</span><span style={{ fontSize: 16, fontWeight: 700 }}>ポイント</span></div>
-        <div style={{ fontSize: 12, marginTop: 8, opacity: 0.9 }}>次のレベルまで あと {toNext}P</div>
-      </Card>
-      {habits.length > 0 && (
-        <Card style={{ marginTop: 12 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 800, marginBottom: 8 }}><Icon name="flame" size={18} color={C.flame} />継続中の習慣</div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-            {habits.map((t) => { const st = habitStats(data.history, child.id, t); return (<div key={t.id} style={{ display: "flex", alignItems: "center", gap: 5, background: (st.achieved ? C.mint : C.flame) + "14", borderRadius: 999, padding: "6px 12px" }}><span style={{ fontSize: 16 }}>{t.emoji}</span><span style={{ fontWeight: 700, fontSize: 13 }}>{t.title}</span><span style={{ fontWeight: 800, fontSize: 13, color: st.achieved ? C.mint : C.flame }}>{habitChipText(st)}</span></div>); })}
-          </div>
-        </Card>
-      )}
-      {goal ? (
-        <Card style={{ marginTop: 12 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 800 }}><Icon name="target" size={18} color={C.primary} />目標：{goal.emoji} {goal.title}</div>
-          <div style={{ marginTop: 10, background: C.line, borderRadius: 999, height: 16, overflow: "hidden" }}><div style={{ width: pct + "%", height: "100%", background: child.color, borderRadius: 999, transition: "width .4s" }} /></div>
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6, fontSize: 13, color: C.sub }}><span>{child.points} / {goal.cost}P</span><span style={{ fontWeight: 800, color: child.color }}>{pct}%</span></div>
-          {reached ? <p style={{ textAlign: "center", color: C.mint, fontWeight: 800, marginTop: 8 }}>🎉 ポイントがたまりました！交換できます</p> : <p style={{ textAlign: "center", color: C.sub, fontSize: 12, marginTop: 8 }}>あと {goal.cost - child.points}P で交換できます</p>}
-        </Card>
-      ) : (<Card style={{ marginTop: 12, textAlign: "center", color: C.sub, fontSize: 13 }}>目標がまだ設定されていません。ためたいごほうびを選んでみよう。</Card>)}
-      <RecentHistory data={data} childId={child.id} />
-    </React.Fragment>
-  );
+    const goal = goalRewardOf(data, child);
+    const pct = goal ? Math.min(100, Math.round((child.points / goal.cost) * 100)) : 0;
+    const reached = goal && child.points >= goal.cost;
+    const earned = earnedOf(data.history, child.id);
+    const toNext = 100 - (earned % 100);
+    const habits = tasksFor(data, child.id).filter((t) => t.isHabit);
+    return (React.createElement(React.Fragment, null,
+        React.createElement(Card, { style: { background: "linear-gradient(135deg, " + child.color + ", " + child.color + "cc)", color: "#fff", textAlign: "center", padding: 24, marginTop: 8 } },
+            React.createElement("div", { style: { display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.22)", padding: "3px 12px", borderRadius: 999, fontWeight: 800, fontSize: 13 } },
+                React.createElement(Icon, { name: "award", size: 15, color: "#FFE08A" }),
+                "\u30EC\u30D9\u30EB ",
+                levelOf(earned)),
+            React.createElement("div", { style: { fontSize: 38, lineHeight: 1, marginTop: 8 } }, child.emoji),
+            React.createElement("div", { style: { fontWeight: 800, fontSize: 18, marginTop: 6 } }, child.name),
+            React.createElement("div", { style: { display: "inline-flex", alignItems: "center", gap: 6, marginTop: 10, background: "rgba(255,255,255,0.22)", padding: "8px 18px", borderRadius: 999 } },
+                React.createElement(Icon, { name: "coins", size: 26, color: "#FFE08A" }),
+                React.createElement("span", { style: { fontSize: 34, fontWeight: 900 } }, child.points),
+                React.createElement("span", { style: { fontSize: 16, fontWeight: 700 } }, "\u30DD\u30A4\u30F3\u30C8")),
+            React.createElement("div", { style: { fontSize: 12, marginTop: 8, opacity: 0.9 } },
+                "\u6B21\u306E\u30EC\u30D9\u30EB\u307E\u3067 \u3042\u3068 ",
+                toNext,
+                "P")),
+        habits.length > 0 && (React.createElement(Card, { style: { marginTop: 12 } },
+            React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6, fontWeight: 800, marginBottom: 8 } },
+                React.createElement(Icon, { name: "flame", size: 18, color: C.flame }),
+                "\u7D99\u7D9A\u4E2D\u306E\u7FD2\u6163"),
+            React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 8 } }, habits.map((t) => { const st = habitStats(data.history, child.id, t); return (React.createElement("div", { key: t.id, style: { display: "flex", alignItems: "center", gap: 5, background: (st.achieved ? C.mint : C.flame) + "14", borderRadius: 999, padding: "6px 12px" } },
+                React.createElement("span", { style: { fontSize: 16 } }, t.emoji),
+                React.createElement("span", { style: { fontWeight: 700, fontSize: 13 } }, t.title),
+                React.createElement("span", { style: { fontWeight: 800, fontSize: 13, color: st.achieved ? C.mint : C.flame } }, habitChipText(st)))); })))),
+        goal ? (React.createElement(Card, { style: { marginTop: 12 } },
+            React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6, fontWeight: 800 } },
+                React.createElement(Icon, { name: "target", size: 18, color: C.primary }),
+                "\u76EE\u6A19\uFF1A",
+                goal.emoji,
+                " ",
+                goal.title),
+            React.createElement("div", { style: { marginTop: 10, background: C.line, borderRadius: 999, height: 16, overflow: "hidden" } },
+                React.createElement("div", { style: { width: pct + "%", height: "100%", background: child.color, borderRadius: 999, transition: "width .4s" } })),
+            React.createElement("div", { style: { display: "flex", justifyContent: "space-between", marginTop: 6, fontSize: 13, color: C.sub } },
+                React.createElement("span", null,
+                    child.points,
+                    " / ",
+                    goal.cost,
+                    "P"),
+                React.createElement("span", { style: { fontWeight: 800, color: child.color } },
+                    pct,
+                    "%")),
+            reached ? React.createElement("p", { style: { textAlign: "center", color: C.mint, fontWeight: 800, marginTop: 8 } }, "\uD83C\uDF89 \u30DD\u30A4\u30F3\u30C8\u304C\u305F\u307E\u308A\u307E\u3057\u305F\uFF01\u4EA4\u63DB\u3067\u304D\u307E\u3059") : React.createElement("p", { style: { textAlign: "center", color: C.sub, fontSize: 12, marginTop: 8 } },
+                "\u3042\u3068 ",
+                goal.cost - child.points,
+                "P \u3067\u4EA4\u63DB\u3067\u304D\u307E\u3059"))) : (React.createElement(Card, { style: { marginTop: 12, textAlign: "center", color: C.sub, fontSize: 13 } }, "\u76EE\u6A19\u304C\u307E\u3060\u8A2D\u5B9A\u3055\u308C\u3066\u3044\u307E\u305B\u3093\u3002\u305F\u3081\u305F\u3044\u3054\u307B\u3046\u3073\u3092\u9078\u3093\u3067\u307F\u3088\u3046\u3002")),
+        React.createElement(RecentHistory, { data: data, childId: child.id })));
 }
-
 function ChildReward({ data, setData, child }) {
-  const [reqOpen, setReqOpen] = useState(false);
-  const [f, setF] = useState({ title: "", emoji: "🎁" });
-  const myReqs = (data.requests || []).filter((r) => r.childId === child.id);
-  const submit = () => {
-    if (!f.title.trim()) return;
-    setData((p) => ({ ...p, requests: [...(p.requests || []), { id: uid(), childId: child.id, title: f.title.trim(), emoji: f.emoji || "🎁", ts: Date.now() }] }));
-    setF({ title: "", emoji: "🎁" }); setReqOpen(false);
-  };
-  const cancel = (id) => setData((p) => ({ ...p, requests: (p.requests || []).filter((r) => r.id !== id) }));
-  return (
-    <React.Fragment>
-      <SectionTitle icon={<Icon name="gift" size={18} color={C.grape} />}>交換できるごほうび</SectionTitle>
-      <div style={{ display: "grid", gap: 10 }}>
-        {data.rewards.map((r) => {
-          const ok = child.points >= r.cost; const isGoal = child.goalRewardId === r.id;
-          return (<Card key={r.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", border: isGoal ? "1.5px solid " + C.primary : "1px solid " + C.line }}><div style={{ display: "flex", alignItems: "center", gap: 12 }}><span style={{ fontSize: 26 }}>{r.emoji}</span><div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>{r.title}{isGoal && <Pill color={C.primary}>🎯 目標</Pill>}</div></div>{ok ? <Pill color={C.mint}>交換できる！</Pill> : <span style={{ fontSize: 13, color: C.sub }}>あと{r.cost - child.points}P</span>}</Card>);
-        })}
-      </div>
-      <p style={{ textAlign: "center", color: C.sub, fontSize: 12, marginTop: 14 }}>交換するときは、おうちの人に伝えてね。</p>
-
-      <SectionTitle icon={<Icon name="sparkles" size={18} color={C.grape} />}>ほしいごほうびをリクエスト</SectionTitle>
-      <p style={{ fontSize: 13, color: C.sub, margin: "0 2px 10px" }}>ほしいごほうびをおうちの人にお願いできます。必要なポイントはおうちの人が決めます。</p>
-      {myReqs.length > 0 && (
-        <div style={{ display: "grid", gap: 8, marginBottom: 10 }}>
-          {myReqs.map((r) => (
-            <Card key={r.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}><span style={{ fontSize: 22 }}>{r.emoji}</span><div style={{ fontWeight: 700 }}>{r.title}</div><Pill color={C.sun}>申請中</Pill></div>
-              <button onClick={() => cancel(r.id)} style={iconBtn}><Icon name="x" size={15} color={C.sub} /></button>
-            </Card>
-          ))}
-        </div>
-      )}
-      <button onClick={() => setReqOpen(true)} style={{ ...btn(C.grape, "100%"), display: "flex", gap: 6, justifyContent: "center" }}><Icon name="plus" size={18} color="#fff" />ごほうびをリクエストする</button>
-      {reqOpen && (
-        <Overlay onClose={() => setReqOpen(false)}>
-          <h3 style={{ marginTop: 0 }}>ほしいごほうび</h3>
-          <Label>名前</Label><input value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} style={inputStyle} placeholder="例：あたらしい本" />
-          <Label>マーク（絵文字）</Label><input value={f.emoji} onChange={(e) => setF({ ...f, emoji: e.target.value.slice(0, 2) })} style={{ ...inputStyle, width: 70, textAlign: "center", fontSize: 22 }} />
-          <p style={{ fontSize: 12, color: C.sub, marginTop: 10 }}>必要なポイントはおうちの人が決めます。</p>
-          <button onClick={submit} style={{ ...btn(C.grape, "100%"), marginTop: 6 }}>リクエストする</button>
-        </Overlay>
-      )}
-    </React.Fragment>
-  );
+    const [reqOpen, setReqOpen] = useState(false);
+    const [f, setF] = useState({ title: "", emoji: "🎁" });
+    const myReqs = (data.requests || []).filter((r) => r.childId === child.id);
+    const submit = () => {
+        if (!f.title.trim())
+            return;
+        setData((p) => (Object.assign(Object.assign({}, p), { requests: [...(p.requests || []), { id: uid(), childId: child.id, title: f.title.trim(), emoji: f.emoji || "🎁", ts: Date.now() }] })));
+        setF({ title: "", emoji: "🎁" });
+        setReqOpen(false);
+    };
+    const cancel = (id) => setData((p) => (Object.assign(Object.assign({}, p), { requests: (p.requests || []).filter((r) => r.id !== id) })));
+    return (React.createElement(React.Fragment, null,
+        React.createElement(SectionTitle, { icon: React.createElement(Icon, { name: "gift", size: 18, color: C.grape }) }, "\u4EA4\u63DB\u3067\u304D\u308B\u3054\u307B\u3046\u3073"),
+        React.createElement("div", { style: { display: "grid", gap: 10 } }, data.rewards.map((r) => {
+            const ok = child.points >= r.cost;
+            const isGoal = child.goalRewardId === r.id;
+            return (React.createElement(Card, { key: r.id, style: { display: "flex", alignItems: "center", justifyContent: "space-between", border: isGoal ? "1.5px solid " + C.primary : "1px solid " + C.line } },
+                React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 12 } },
+                    React.createElement("span", { style: { fontSize: 26 } }, r.emoji),
+                    React.createElement("div", { style: { fontWeight: 700, display: "flex", alignItems: "center", gap: 6 } },
+                        r.title,
+                        isGoal && React.createElement(Pill, { color: C.primary }, "\uD83C\uDFAF \u76EE\u6A19"))),
+                ok ? React.createElement(Pill, { color: C.mint }, "\u4EA4\u63DB\u3067\u304D\u308B\uFF01") : React.createElement("span", { style: { fontSize: 13, color: C.sub } },
+                    "\u3042\u3068",
+                    r.cost - child.points,
+                    "P")));
+        })),
+        React.createElement("p", { style: { textAlign: "center", color: C.sub, fontSize: 12, marginTop: 14 } }, "\u4EA4\u63DB\u3059\u308B\u3068\u304D\u306F\u3001\u304A\u3046\u3061\u306E\u4EBA\u306B\u4F1D\u3048\u3066\u306D\u3002"),
+        React.createElement(SectionTitle, { icon: React.createElement(Icon, { name: "sparkles", size: 18, color: C.grape }) }, "\u307B\u3057\u3044\u3054\u307B\u3046\u3073\u3092\u30EA\u30AF\u30A8\u30B9\u30C8"),
+        React.createElement("p", { style: { fontSize: 13, color: C.sub, margin: "0 2px 10px" } }, "\u307B\u3057\u3044\u3054\u307B\u3046\u3073\u3092\u304A\u3046\u3061\u306E\u4EBA\u306B\u304A\u9858\u3044\u3067\u304D\u307E\u3059\u3002\u5FC5\u8981\u306A\u30DD\u30A4\u30F3\u30C8\u306F\u304A\u3046\u3061\u306E\u4EBA\u304C\u6C7A\u3081\u307E\u3059\u3002"),
+        myReqs.length > 0 && (React.createElement("div", { style: { display: "grid", gap: 8, marginBottom: 10 } }, myReqs.map((r) => (React.createElement(Card, { key: r.id, style: { display: "flex", alignItems: "center", justifyContent: "space-between" } },
+            React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 } },
+                React.createElement("span", { style: { fontSize: 22 } }, r.emoji),
+                React.createElement("div", { style: { fontWeight: 700 } }, r.title),
+                React.createElement(Pill, { color: C.sun }, "\u7533\u8ACB\u4E2D")),
+            React.createElement("button", { onClick: () => cancel(r.id), style: iconBtn },
+                React.createElement(Icon, { name: "x", size: 15, color: C.sub }))))))),
+        React.createElement("button", { onClick: () => setReqOpen(true), style: Object.assign(Object.assign({}, btn(C.grape, "100%")), { display: "flex", gap: 6, justifyContent: "center" }) },
+            React.createElement(Icon, { name: "plus", size: 18, color: "#fff" }),
+            "\u3054\u307B\u3046\u3073\u3092\u30EA\u30AF\u30A8\u30B9\u30C8\u3059\u308B"),
+        reqOpen && (React.createElement(Overlay, { onClose: () => setReqOpen(false) },
+            React.createElement("h3", { style: { marginTop: 0 } }, "\u307B\u3057\u3044\u3054\u307B\u3046\u3073"),
+            React.createElement(Label, null, "\u540D\u524D"),
+            React.createElement("input", { value: f.title, onChange: (e) => setF(Object.assign(Object.assign({}, f), { title: e.target.value })), style: inputStyle, placeholder: "\u4F8B\uFF1A\u3042\u305F\u3089\u3057\u3044\u672C" }),
+            React.createElement(Label, null, "\u30DE\u30FC\u30AF\uFF08\u7D75\u6587\u5B57\uFF09"),
+            React.createElement("input", { value: f.emoji, onChange: (e) => setF(Object.assign(Object.assign({}, f), { emoji: e.target.value.slice(0, 2) })), style: Object.assign(Object.assign({}, inputStyle), { width: 70, textAlign: "center", fontSize: 22 }) }),
+            React.createElement("p", { style: { fontSize: 12, color: C.sub, marginTop: 10 } }, "\u5FC5\u8981\u306A\u30DD\u30A4\u30F3\u30C8\u306F\u304A\u3046\u3061\u306E\u4EBA\u304C\u6C7A\u3081\u307E\u3059\u3002"),
+            React.createElement("button", { onClick: submit, style: Object.assign(Object.assign({}, btn(C.grape, "100%")), { marginTop: 6 }) }, "\u30EA\u30AF\u30A8\u30B9\u30C8\u3059\u308B")))));
 }
-
 function GoalView({ data, setData, redeem, editable }) {
-  const [pickFor, setPickFor] = useState(null);
-  const setGoal = (childId, rewardId) => { setData((p) => ({ ...p, children: p.children.map((c) => c.id === childId ? { ...c, goalRewardId: rewardId } : c) })); setPickFor(null); };
-  const addRewardAndSet = (childId, reward) => { const r = { ...reward, id: uid(), cost: Number(reward.cost) || 100 }; setData((p) => ({ ...p, rewards: [...p.rewards, r], children: p.children.map((c) => c.id === childId ? { ...c, goalRewardId: r.id } : c) })); setPickFor(null); };
-  return (
-    <React.Fragment>
-      <SectionTitle icon={<Icon name="target" size={18} color={C.primary} />}>目標</SectionTitle>
-      <p style={{ fontSize: 13, color: C.sub, margin: "0 2px 10px" }}>目標は「今ためている大きなごほうび」です。ごほうびの中から1つ選ぶと、貯まり具合がゲージで見えます。</p>
-      <div style={{ display: "grid", gap: 12 }}>
-        {data.children.map((c) => {
-          const goal = goalRewardOf(data, c);
-          const pct = goal ? Math.min(100, Math.round((c.points / goal.cost) * 100)) : 0;
-          const reached = goal && c.points >= goal.cost;
-          return (
-            <Card key={c.id}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}><div style={{ display: "flex", alignItems: "center", gap: 10 }}><Avatar child={c} small /><div style={{ fontWeight: 800 }}>{c.name}</div></div>{goal ? <Pill color={c.color}>{goal.emoji} {goal.title}</Pill> : <span style={{ fontSize: 13, color: C.sub }}>未設定</span>}</div>
-              {goal && (<React.Fragment><div style={{ marginTop: 10, background: C.line, borderRadius: 999, height: 12, overflow: "hidden" }}><div style={{ width: pct + "%", height: "100%", background: c.color }} /></div><div style={{ display: "flex", justifyContent: "space-between", marginTop: 5, fontSize: 12, color: C.sub }}><span>{c.points}/{goal.cost}P</span><span>{pct}%{reached ? "・達成！" : ""}</span></div></React.Fragment>)}
-              {editable && (<div style={{ display: "flex", gap: 8, marginTop: 10 }}><button onClick={() => setPickFor(c.id)} style={{ ...chip("#fff", C.primary), border: "1px solid " + C.primary, fontSize: 12 }}>{goal ? "目標を変える" : "目標を決める"}</button>{reached && <button onClick={() => redeem(c.id, goal)} style={{ ...chip(C.mint), fontSize: 12 }}>🎉 交換する</button>}</div>)}
-            </Card>
-          );
-        })}
-      </div>
-      {pickFor && <GoalPicker data={data} childId={pickFor} onPick={(rid) => setGoal(pickFor, rid)} onAdd={(r) => addRewardAndSet(pickFor, r)} onClose={() => setPickFor(null)} />}
-    </React.Fragment>
-  );
+    const [pickFor, setPickFor] = useState(null);
+    const setGoal = (childId, rewardId) => { setData((p) => (Object.assign(Object.assign({}, p), { children: p.children.map((c) => c.id === childId ? Object.assign(Object.assign({}, c), { goalRewardId: rewardId }) : c) }))); setPickFor(null); };
+    const addRewardAndSet = (childId, reward) => { const r = Object.assign(Object.assign({}, reward), { id: uid(), cost: Number(reward.cost) || 100 }); setData((p) => (Object.assign(Object.assign({}, p), { rewards: [...p.rewards, r], children: p.children.map((c) => c.id === childId ? Object.assign(Object.assign({}, c), { goalRewardId: r.id }) : c) }))); setPickFor(null); };
+    return (React.createElement(React.Fragment, null,
+        React.createElement(SectionTitle, { icon: React.createElement(Icon, { name: "target", size: 18, color: C.primary }) }, "\u76EE\u6A19"),
+        React.createElement("p", { style: { fontSize: 13, color: C.sub, margin: "0 2px 10px" } }, "\u76EE\u6A19\u306F\u300C\u4ECA\u305F\u3081\u3066\u3044\u308B\u5927\u304D\u306A\u3054\u307B\u3046\u3073\u300D\u3067\u3059\u3002\u3054\u307B\u3046\u3073\u306E\u4E2D\u304B\u30891\u3064\u9078\u3076\u3068\u3001\u8CAF\u307E\u308A\u5177\u5408\u304C\u30B2\u30FC\u30B8\u3067\u898B\u3048\u307E\u3059\u3002"),
+        React.createElement("div", { style: { display: "grid", gap: 12 } }, data.children.map((c) => {
+            const goal = goalRewardOf(data, c);
+            const pct = goal ? Math.min(100, Math.round((c.points / goal.cost) * 100)) : 0;
+            const reached = goal && c.points >= goal.cost;
+            return (React.createElement(Card, { key: c.id },
+                React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between" } },
+                    React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 } },
+                        React.createElement(Avatar, { child: c, small: true }),
+                        React.createElement("div", { style: { fontWeight: 800 } }, c.name)),
+                    goal ? React.createElement(Pill, { color: c.color },
+                        goal.emoji,
+                        " ",
+                        goal.title) : React.createElement("span", { style: { fontSize: 13, color: C.sub } }, "\u672A\u8A2D\u5B9A")),
+                goal && (React.createElement(React.Fragment, null,
+                    React.createElement("div", { style: { marginTop: 10, background: C.line, borderRadius: 999, height: 12, overflow: "hidden" } },
+                        React.createElement("div", { style: { width: pct + "%", height: "100%", background: c.color } })),
+                    React.createElement("div", { style: { display: "flex", justifyContent: "space-between", marginTop: 5, fontSize: 12, color: C.sub } },
+                        React.createElement("span", null,
+                            c.points,
+                            "/",
+                            goal.cost,
+                            "P"),
+                        React.createElement("span", null,
+                            pct,
+                            "%",
+                            reached ? "・達成！" : "")))),
+                editable && (React.createElement("div", { style: { display: "flex", gap: 8, marginTop: 10 } },
+                    React.createElement("button", { onClick: () => setPickFor(c.id), style: Object.assign(Object.assign({}, chip("#fff", C.primary)), { border: "1px solid " + C.primary, fontSize: 12 }) }, goal ? "目標を変える" : "目標を決める"),
+                    reached && React.createElement("button", { onClick: () => redeem(c.id, goal), style: Object.assign(Object.assign({}, chip(C.mint)), { fontSize: 12 }) }, "\uD83C\uDF89 \u4EA4\u63DB\u3059\u308B")))));
+        })),
+        pickFor && React.createElement(GoalPicker, { data: data, childId: pickFor, onPick: (rid) => setGoal(pickFor, rid), onAdd: (r) => addRewardAndSet(pickFor, r), onClose: () => setPickFor(null) })));
 }
-
 function GoalPicker({ data, childId, onPick, onAdd, onClose }) {
-  const child = data.children.find((c) => c.id === childId);
-  const [adding, setAdding] = useState(false);
-  const [f, setF] = useState({ title: "", emoji: "🎁", cost: 100 });
-  return (
-    <Overlay onClose={onClose}>
-      <h3 style={{ marginTop: 0 }}>{child.name} の目標を選ぶ</h3>
-      <p style={{ fontSize: 13, color: C.sub, marginTop: 0 }}>ごほうびの中から「今ためているもの」を1つ選びます。</p>
-      <div style={{ display: "grid", gap: 8 }}>
-        {data.rewards.map((r) => { const on = child.goalRewardId === r.id; return (<button key={r.id} onClick={() => onPick(r.id)} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", background: on ? C.primary + "12" : "#fff", border: "1.5px solid " + (on ? C.primary : C.line), borderRadius: 14, padding: "10px 12px", cursor: "pointer", fontFamily: FONT }}><span style={{ display: "flex", alignItems: "center", gap: 10 }}><span style={{ fontSize: 22 }}>{r.emoji}</span><span style={{ fontWeight: 700 }}>{r.title}</span><PointBadge value={r.cost} small /></span>{on && <Icon name="check" size={18} color={C.primary} />}</button>); })}
-      </div>
-      {!adding ? (
-        <button onClick={() => setAdding(true)} style={{ marginTop: 10, width: "100%", border: "1.5px dashed " + C.line, background: "#fff", color: C.primary, borderRadius: 14, padding: "10px 0", fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: FONT, display: "flex", gap: 5, justifyContent: "center", alignItems: "center" }}><Icon name="plus" size={15} color={C.primary} />新しいごほうびを追加して目標にする</button>
-      ) : (
-        <div style={{ marginTop: 12, background: "#F7F8FE", borderRadius: 14, padding: 12 }}>
-          <Label>名前</Label><input value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} style={inputStyle} placeholder="例：自転車" />
-          <div style={{ display: "flex", gap: 10 }}><div style={{ flex: "0 0 80px" }}><Label>マーク</Label><input value={f.emoji} onChange={(e) => setF({ ...f, emoji: e.target.value.slice(0, 2) })} style={{ ...inputStyle, textAlign: "center", fontSize: 22 }} /></div><div style={{ flex: 1 }}><Label>必要なポイント</Label><input value={f.cost} inputMode="numeric" onChange={(e) => setF({ ...f, cost: e.target.value.replace(/\D/g, "") })} style={inputStyle} /></div></div>
-          <button onClick={() => { if (f.title.trim()) onAdd(f); }} style={{ ...btn(C.primary, "100%"), marginTop: 12 }}>追加して目標にする</button>
-        </div>
-      )}
-      <button onClick={() => onPick(null)} style={{ marginTop: 10, width: "100%", border: "none", background: "transparent", color: C.sub, fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: FONT, padding: "6px 0" }}>目標をなしにする</button>
-    </Overlay>
-  );
+    const child = data.children.find((c) => c.id === childId);
+    const [adding, setAdding] = useState(false);
+    const [f, setF] = useState({ title: "", emoji: "🎁", cost: 100 });
+    return (React.createElement(Overlay, { onClose: onClose },
+        React.createElement("h3", { style: { marginTop: 0 } },
+            child.name,
+            " \u306E\u76EE\u6A19\u3092\u9078\u3076"),
+        React.createElement("p", { style: { fontSize: 13, color: C.sub, marginTop: 0 } }, "\u3054\u307B\u3046\u3073\u306E\u4E2D\u304B\u3089\u300C\u4ECA\u305F\u3081\u3066\u3044\u308B\u3082\u306E\u300D\u30921\u3064\u9078\u3073\u307E\u3059\u3002"),
+        React.createElement("div", { style: { display: "grid", gap: 8 } }, data.rewards.map((r) => { const on = child.goalRewardId === r.id; return (React.createElement("button", { key: r.id, onClick: () => onPick(r.id), style: { display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", background: on ? C.primary + "12" : "#fff", border: "1.5px solid " + (on ? C.primary : C.line), borderRadius: 14, padding: "10px 12px", cursor: "pointer", fontFamily: FONT } },
+            React.createElement("span", { style: { display: "flex", alignItems: "center", gap: 10 } },
+                React.createElement("span", { style: { fontSize: 22 } }, r.emoji),
+                React.createElement("span", { style: { fontWeight: 700 } }, r.title),
+                React.createElement(PointBadge, { value: r.cost, small: true })),
+            on && React.createElement(Icon, { name: "check", size: 18, color: C.primary }))); })),
+        !adding ? (React.createElement("button", { onClick: () => setAdding(true), style: { marginTop: 10, width: "100%", border: "1.5px dashed " + C.line, background: "#fff", color: C.primary, borderRadius: 14, padding: "10px 0", fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: FONT, display: "flex", gap: 5, justifyContent: "center", alignItems: "center" } },
+            React.createElement(Icon, { name: "plus", size: 15, color: C.primary }),
+            "\u65B0\u3057\u3044\u3054\u307B\u3046\u3073\u3092\u8FFD\u52A0\u3057\u3066\u76EE\u6A19\u306B\u3059\u308B")) : (React.createElement("div", { style: { marginTop: 12, background: "#F7F8FE", borderRadius: 14, padding: 12 } },
+            React.createElement(Label, null, "\u540D\u524D"),
+            React.createElement("input", { value: f.title, onChange: (e) => setF(Object.assign(Object.assign({}, f), { title: e.target.value })), style: inputStyle, placeholder: "\u4F8B\uFF1A\u81EA\u8EE2\u8ECA" }),
+            React.createElement("div", { style: { display: "flex", gap: 10 } },
+                React.createElement("div", { style: { flex: "0 0 80px" } },
+                    React.createElement(Label, null, "\u30DE\u30FC\u30AF"),
+                    React.createElement("input", { value: f.emoji, onChange: (e) => setF(Object.assign(Object.assign({}, f), { emoji: e.target.value.slice(0, 2) })), style: Object.assign(Object.assign({}, inputStyle), { textAlign: "center", fontSize: 22 }) })),
+                React.createElement("div", { style: { flex: 1 } },
+                    React.createElement(Label, null, "\u5FC5\u8981\u306A\u30DD\u30A4\u30F3\u30C8"),
+                    React.createElement("input", { value: f.cost, inputMode: "numeric", onChange: (e) => setF(Object.assign(Object.assign({}, f), { cost: e.target.value.replace(/\D/g, "") })), style: inputStyle }))),
+            React.createElement("button", { onClick: () => { if (f.title.trim())
+                    onAdd(f); }, style: Object.assign(Object.assign({}, btn(C.primary, "100%")), { marginTop: 12 }) }, "\u8FFD\u52A0\u3057\u3066\u76EE\u6A19\u306B\u3059\u308B"))),
+        React.createElement("button", { onClick: () => onPick(null), style: { marginTop: 10, width: "100%", border: "none", background: "transparent", color: C.sub, fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: FONT, padding: "6px 0" } }, "\u76EE\u6A19\u3092\u306A\u3057\u306B\u3059\u308B")));
 }
-
 function RecordView({ data, selectedChild, setSelectedChild, hidePicker }) {
-  const child = data.children.find((c) => c.id === selectedChild) || data.children[0];
-  const series = useMemo(() => {
-    const earns = data.history.filter((h) => h.childId === child.id && h.type === "earn").sort((a, b) => a.ts - b.ts);
-    const byDay = {}; let total = 0; earns.forEach((e) => { total += e.amount; byDay[fmtDay(e.ts)] = total; });
-    return Object.keys(byDay).map((day) => ({ day, total: byDay[day] }));
-  }, [data, child]);
-  const totalEarned = series.length ? series[series.length - 1].total : 0;
-  const habits = tasksFor(data, child.id).filter((t) => t.isHabit);
-  return (
-    <React.Fragment>
-      <SectionTitle icon={<Icon name="chart" size={18} color={C.mint} />}>がんばりの記録</SectionTitle>
-      {!hidePicker && <ChildPicker data={data} selected={child.id} onSelect={setSelectedChild} />}
-      <Card style={{ marginTop: 8 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}><span style={{ fontWeight: 800 }}>{child.name} の累計ポイント</span><div style={{ display: "flex", gap: 8, alignItems: "center" }}><LevelBadge earned={totalEarned} /><PointBadge value={totalEarned} small /></div></div>
-        <LineChartMini series={series} color={child.color} />
-      </Card>
-      {habits.length > 0 && (<React.Fragment><SectionTitle icon={<Icon name="flame" size={18} color={C.flame} />}>習慣の記録</SectionTitle><div style={{ display: "grid", gap: 12 }}>{habits.map((t) => <HabitCard key={t.id} data={data} child={child} task={t} />)}</div></React.Fragment>)}
-    </React.Fragment>
-  );
+    const child = data.children.find((c) => c.id === selectedChild) || data.children[0];
+    const series = useMemo(() => {
+        const earns = data.history.filter((h) => h.childId === child.id && h.type === "earn").sort((a, b) => a.ts - b.ts);
+        const byDay = {};
+        let total = 0;
+        earns.forEach((e) => { total += e.amount; byDay[fmtDay(e.ts)] = total; });
+        return Object.keys(byDay).map((day) => ({ day, total: byDay[day] }));
+    }, [data, child]);
+    const totalEarned = series.length ? series[series.length - 1].total : 0;
+    const habits = tasksFor(data, child.id).filter((t) => t.isHabit);
+    return (React.createElement(React.Fragment, null,
+        React.createElement(SectionTitle, { icon: React.createElement(Icon, { name: "chart", size: 18, color: C.mint }) }, "\u304C\u3093\u3070\u308A\u306E\u8A18\u9332"),
+        !hidePicker && React.createElement(ChildPicker, { data: data, selected: child.id, onSelect: setSelectedChild }),
+        React.createElement(Card, { style: { marginTop: 8 } },
+            React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 } },
+                React.createElement("span", { style: { fontWeight: 800 } },
+                    child.name,
+                    " \u306E\u7D2F\u8A08\u30DD\u30A4\u30F3\u30C8"),
+                React.createElement("div", { style: { display: "flex", gap: 8, alignItems: "center" } },
+                    React.createElement(LevelBadge, { earned: totalEarned }),
+                    React.createElement(PointBadge, { value: totalEarned, small: true }))),
+            React.createElement(LineChartMini, { series: series, color: child.color })),
+        habits.length > 0 && (React.createElement(React.Fragment, null,
+            React.createElement(SectionTitle, { icon: React.createElement(Icon, { name: "flame", size: 18, color: C.flame }) }, "\u7FD2\u6163\u306E\u8A18\u9332"),
+            React.createElement("div", { style: { display: "grid", gap: 12 } }, habits.map((t) => React.createElement(HabitCard, { key: t.id, data: data, child: child, task: t })))))));
 }
-
 function HabitCard({ data, child, task }) {
-  const st = habitStats(data.history, child.id, task);
-  if (st.type === "weekly") {
-    const wpct = Math.min(100, Math.round((st.thisWeekCount / st.perWeek) * 100));
-    return (
-      <Card>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}><div style={{ display: "flex", alignItems: "center", gap: 8 }}><span style={{ fontSize: 22 }}>{task.emoji}</span><span style={{ fontWeight: 800 }}>{task.title}</span><span style={{ fontSize: 11, color: C.sub }}>週{st.perWeek}回</span></div><FlameBadge label={st.current + "週"} achieved={st.achieved} /></div>
-        <div style={{ marginTop: 12, fontSize: 13, fontWeight: 700 }}>今週：{st.thisWeekCount} / {st.perWeek}回</div>
-        <div style={{ marginTop: 6, background: C.line, borderRadius: 999, height: 10, overflow: "hidden" }}><div style={{ width: wpct + "%", height: "100%", background: st.thisWeekCount >= st.perWeek ? C.mint : C.flame }} /></div>
-        <div style={{ marginTop: 12, display: "flex", gap: 6 }}>{st.recentWeeks.map((wk, i) => (<div key={i} style={{ flex: 1, height: 30, borderRadius: 8, display: "grid", placeItems: "center", background: wk.achieved ? child.color : C.line, color: wk.achieved ? "#fff" : C.sub, fontWeight: 800, fontSize: 12 }}>{wk.count}</div>))}</div>
-        <div style={{ fontSize: 11, color: C.sub, marginTop: 6 }}>数字＝その週にできた回数（色つき＝週{st.perWeek}回 達成）</div>
-        {st.achieved ? (<div style={{ marginTop: 10, background: C.mint + "14", borderRadius: 12, padding: "8px 12px", textAlign: "center", color: C.mint, fontWeight: 800 }}>🏅 習慣化できました！（{st.longest}週連続で達成）</div>) : (<div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, fontSize: 12, color: C.sub }}><span>達成 {st.current} / {st.target}週</span><span>習慣化まで あと {Math.max(0, st.target - st.current)}週</span></div>)}
-      </Card>
-    );
-  }
-  const pct = Math.min(100, Math.round((st.current / st.target) * 100));
-  return (
-    <Card>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}><div style={{ display: "flex", alignItems: "center", gap: 8 }}><span style={{ fontSize: 22 }}>{task.emoji}</span><span style={{ fontWeight: 800 }}>{task.title}</span><span style={{ fontSize: 11, color: C.sub }}>{st.type === "weekdays" ? "平日" : "毎日"}</span></div><FlameBadge label={st.current + st.unit} achieved={st.achieved} /></div>
-      <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 5 }}>
-        {st.recent.map((cell, i) => { const off = st.type === "weekdays" && cell.weekend; return (<div key={i} style={{ aspectRatio: "1 / 1", borderRadius: "50%", background: cell.done ? child.color : (off ? "transparent" : C.line), border: cell.today ? "2px solid " + C.ink : (off ? "1px dashed " + C.line : "none"), opacity: cell.done ? 1 : (off ? 0.6 : 0.5) }} />); })}
-      </div>
-      <div style={{ fontSize: 11, color: C.sub, marginTop: 6 }}>さいきん5週間（色つき＝できた日・太わく＝今日{st.type === "weekdays" ? "・点線＝土日（お休み）" : ""}）</div>
-      {st.achieved ? (<div style={{ marginTop: 10, background: C.mint + "14", borderRadius: 12, padding: "8px 12px", textAlign: "center", color: C.mint, fontWeight: 800 }}>🏅 習慣化できました！（最長 {st.longest}{st.unit}）</div>) : (<React.Fragment><div style={{ marginTop: 10, background: C.line, borderRadius: 999, height: 10, overflow: "hidden" }}><div style={{ width: pct + "%", height: "100%", background: C.flame }} /></div><div style={{ display: "flex", justifyContent: "space-between", marginTop: 5, fontSize: 12, color: C.sub }}><span>連続 {st.current} / {st.target}{st.unit}{st.grace ? "（お休み" + st.grace + "日までOK）" : ""}</span><span>あと {Math.max(0, st.target - st.current)}{st.unit}</span></div></React.Fragment>)}
-    </Card>
-  );
+    const st = habitStats(data.history, child.id, task);
+    if (st.type === "weekly") {
+        const wpct = Math.min(100, Math.round((st.thisWeekCount / st.perWeek) * 100));
+        return (React.createElement(Card, null,
+            React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between" } },
+                React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } },
+                    React.createElement("span", { style: { fontSize: 22 } }, task.emoji),
+                    React.createElement("span", { style: { fontWeight: 800 } }, task.title),
+                    React.createElement("span", { style: { fontSize: 11, color: C.sub } },
+                        "\u9031",
+                        st.perWeek,
+                        "\u56DE")),
+                React.createElement(FlameBadge, { label: st.current + "週", achieved: st.achieved })),
+            React.createElement("div", { style: { marginTop: 12, fontSize: 13, fontWeight: 700 } },
+                "\u4ECA\u9031\uFF1A",
+                st.thisWeekCount,
+                " / ",
+                st.perWeek,
+                "\u56DE"),
+            React.createElement("div", { style: { marginTop: 6, background: C.line, borderRadius: 999, height: 10, overflow: "hidden" } },
+                React.createElement("div", { style: { width: wpct + "%", height: "100%", background: st.thisWeekCount >= st.perWeek ? C.mint : C.flame } })),
+            React.createElement("div", { style: { marginTop: 12, display: "flex", gap: 6 } }, st.recentWeeks.map((wk, i) => (React.createElement("div", { key: i, style: { flex: 1, height: 30, borderRadius: 8, display: "grid", placeItems: "center", background: wk.achieved ? child.color : C.line, color: wk.achieved ? "#fff" : C.sub, fontWeight: 800, fontSize: 12 } }, wk.count)))),
+            React.createElement("div", { style: { fontSize: 11, color: C.sub, marginTop: 6 } },
+                "\u6570\u5B57\uFF1D\u305D\u306E\u9031\u306B\u3067\u304D\u305F\u56DE\u6570\uFF08\u8272\u3064\u304D\uFF1D\u9031",
+                st.perWeek,
+                "\u56DE \u9054\u6210\uFF09"),
+            st.achieved ? (React.createElement("div", { style: { marginTop: 10, background: C.mint + "14", borderRadius: 12, padding: "8px 12px", textAlign: "center", color: C.mint, fontWeight: 800 } },
+                "\uD83C\uDFC5 \u7FD2\u6163\u5316\u3067\u304D\u307E\u3057\u305F\uFF01\uFF08",
+                st.longest,
+                "\u9031\u9023\u7D9A\u3067\u9054\u6210\uFF09")) : (React.createElement("div", { style: { display: "flex", justifyContent: "space-between", marginTop: 10, fontSize: 12, color: C.sub } },
+                React.createElement("span", null,
+                    "\u9054\u6210 ",
+                    st.current,
+                    " / ",
+                    st.target,
+                    "\u9031"),
+                React.createElement("span", null,
+                    "\u7FD2\u6163\u5316\u307E\u3067 \u3042\u3068 ",
+                    Math.max(0, st.target - st.current),
+                    "\u9031")))));
+    }
+    const pct = Math.min(100, Math.round((st.current / st.target) * 100));
+    return (React.createElement(Card, null,
+        React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between" } },
+            React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } },
+                React.createElement("span", { style: { fontSize: 22 } }, task.emoji),
+                React.createElement("span", { style: { fontWeight: 800 } }, task.title),
+                React.createElement("span", { style: { fontSize: 11, color: C.sub } }, st.type === "weekdays" ? "平日" : "毎日")),
+            React.createElement(FlameBadge, { label: st.current + st.unit, achieved: st.achieved })),
+        React.createElement("div", { style: { marginTop: 12, display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 5 } }, st.recent.map((cell, i) => { const off = st.type === "weekdays" && cell.weekend; return (React.createElement("div", { key: i, style: { aspectRatio: "1 / 1", borderRadius: "50%", background: cell.done ? child.color : (off ? "transparent" : C.line), border: cell.today ? "2px solid " + C.ink : (off ? "1px dashed " + C.line : "none"), opacity: cell.done ? 1 : (off ? 0.6 : 0.5) } })); })),
+        React.createElement("div", { style: { fontSize: 11, color: C.sub, marginTop: 6 } },
+            "\u3055\u3044\u304D\u30935\u9031\u9593\uFF08\u8272\u3064\u304D\uFF1D\u3067\u304D\u305F\u65E5\u30FB\u592A\u308F\u304F\uFF1D\u4ECA\u65E5",
+            st.type === "weekdays" ? "・点線＝土日（お休み）" : "",
+            "\uFF09"),
+        st.achieved ? (React.createElement("div", { style: { marginTop: 10, background: C.mint + "14", borderRadius: 12, padding: "8px 12px", textAlign: "center", color: C.mint, fontWeight: 800 } },
+            "\uD83C\uDFC5 \u7FD2\u6163\u5316\u3067\u304D\u307E\u3057\u305F\uFF01\uFF08\u6700\u9577 ",
+            st.longest,
+            st.unit,
+            "\uFF09")) : (React.createElement(React.Fragment, null,
+            React.createElement("div", { style: { marginTop: 10, background: C.line, borderRadius: 999, height: 10, overflow: "hidden" } },
+                React.createElement("div", { style: { width: pct + "%", height: "100%", background: C.flame } })),
+            React.createElement("div", { style: { display: "flex", justifyContent: "space-between", marginTop: 5, fontSize: 12, color: C.sub } },
+                React.createElement("span", null,
+                    "\u9023\u7D9A ",
+                    st.current,
+                    " / ",
+                    st.target,
+                    st.unit,
+                    st.grace ? "（お休み" + st.grace + "日までOK）" : ""),
+                React.createElement("span", null,
+                    "\u3042\u3068 ",
+                    Math.max(0, st.target - st.current),
+                    st.unit))))));
 }
-
 function Manage({ data, setData, sub, setSub }) {
-  const tabs = [["children", "お子さん", "users"], ["tasks", "お手伝い", "sparkles"], ["rewards", "ごほうび", "gift"], ["bonus", "ボーナス", "coins"], ["security", "ロック", "lock"]];
-  return (
-    <React.Fragment>
-      <SectionTitle icon={<Icon name="settings" size={18} color={C.sub} />}>管理</SectionTitle>
-      <div style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>{tabs.map((it) => { const k = it[0], label = it[1], ic = it[2]; const on = sub === k; return (<button key={k} onClick={() => setSub(k)} style={{ ...chip(on ? C.ink : "#fff", on ? "#fff" : C.sub), border: "1px solid " + C.line, display: "flex", gap: 4, alignItems: "center" }}><Icon name={ic} size={13} color={on ? "#fff" : C.sub} />{label}</button>); })}</div>
-      {sub === "children" && <ManageChildren data={data} setData={setData} />}
-      {sub === "tasks" && <ManageTasks data={data} setData={setData} />}
-      {sub === "rewards" && <ManageRewards data={data} setData={setData} />}
-      {sub === "bonus" && <ManageBonus data={data} setData={setData} />}
-      {sub === "security" && <ManageSecurity data={data} setData={setData} />}
-    </React.Fragment>
-  );
+    const tabs = [["children", "お子さん", "users"], ["tasks", "お手伝い", "sparkles"], ["rewards", "ごほうび", "gift"], ["bonus", "ボーナス", "coins"], ["security", "ロック", "lock"]];
+    return (React.createElement(React.Fragment, null,
+        React.createElement(SectionTitle, { icon: React.createElement(Icon, { name: "settings", size: 18, color: C.sub }) }, "\u7BA1\u7406"),
+        React.createElement("div", { style: { display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" } }, tabs.map((it) => { const k = it[0], label = it[1], ic = it[2]; const on = sub === k; return (React.createElement("button", { key: k, onClick: () => setSub(k), style: Object.assign(Object.assign({}, chip(on ? C.ink : "#fff", on ? "#fff" : C.sub)), { border: "1px solid " + C.line, display: "flex", gap: 4, alignItems: "center" }) },
+            React.createElement(Icon, { name: ic, size: 13, color: on ? "#fff" : C.sub }),
+            label)); })),
+        sub === "children" && React.createElement(ManageChildren, { data: data, setData: setData }),
+        sub === "tasks" && React.createElement(ManageTasks, { data: data, setData: setData }),
+        sub === "rewards" && React.createElement(ManageRewards, { data: data, setData: setData }),
+        sub === "bonus" && React.createElement(ManageBonus, { data: data, setData: setData }),
+        sub === "security" && React.createElement(ManageSecurity, { data: data, setData: setData })));
 }
-
 function ManageChildren({ data, setData }) {
-  const [form, setForm] = useState(null);
-  const save = () => { if (!form.name.trim()) return; setData((p) => { const exists = p.children.some((c) => c.id === form.id); const child = { ...form, id: form.id || uid(), points: form.points || 0, goalRewardId: form.goalRewardId || null }; return { ...p, children: exists ? p.children.map((c) => c.id === child.id ? child : c) : [...p.children, child] }; }); setForm(null); };
-  const remove = (id) => setData((p) => ({ ...p, children: p.children.filter((c) => c.id !== id) }));
-  return (
-    <React.Fragment>
-      <div style={{ display: "grid", gap: 10 }}>{data.children.map((c) => (<Card key={c.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}><div style={{ display: "flex", alignItems: "center", gap: 10 }}><Avatar child={c} small /><div style={{ fontWeight: 700 }}>{c.name}</div><PointBadge value={c.points} small /></div><div style={{ display: "flex", gap: 6 }}><button onClick={() => setForm({ ...c })} style={iconBtn}><Icon name="pencil" size={15} color={C.ink} /></button><button onClick={() => remove(c.id)} style={iconBtn}><Icon name="trash" size={15} color={C.red} /></button></div></Card>))}</div>
-      <button onClick={() => setForm({ name: "", color: KID_COLORS[data.children.length % 6], emoji: KID_EMOJIS[data.children.length % 8], points: 0, goalRewardId: null })} style={{ ...btn(C.primary, "100%"), marginTop: 12, display: "flex", gap: 6, justifyContent: "center" }}><Icon name="plus" size={18} color="#fff" />お子さんを追加</button>
-      {form && (
-        <Overlay onClose={() => setForm(null)}>
-          <h3 style={{ marginTop: 0 }}>お子さんの登録</h3>
-          <Label>名前</Label><input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} style={inputStyle} placeholder="例：みなみ" />
-          <Label>マーク</Label><div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>{KID_EMOJIS.map((e) => (<button key={e} onClick={() => setForm({ ...form, emoji: e })} style={{ fontSize: 22, padding: 6, borderRadius: 12, border: "2px solid " + (form.emoji === e ? C.primary : C.line), background: "#fff", cursor: "pointer" }}>{e}</button>))}</div>
-          <Label>色</Label><div style={{ display: "flex", gap: 8 }}>{KID_COLORS.map((col) => (<button key={col} onClick={() => setForm({ ...form, color: col })} style={{ width: 30, height: 30, borderRadius: "50%", background: col, border: "3px solid " + (form.color === col ? C.ink : "#fff"), cursor: "pointer" }} />))}</div>
-          <button onClick={save} style={{ ...btn(C.primary, "100%"), marginTop: 14 }}>保存する</button>
-        </Overlay>
-      )}
-    </React.Fragment>
-  );
+    const [form, setForm] = useState(null);
+    const save = () => { if (!form.name.trim())
+        return; setData((p) => { const exists = p.children.some((c) => c.id === form.id); const child = Object.assign(Object.assign({}, form), { id: form.id || uid(), points: form.points || 0, goalRewardId: form.goalRewardId || null }); return Object.assign(Object.assign({}, p), { children: exists ? p.children.map((c) => c.id === child.id ? child : c) : [...p.children, child] }); }); setForm(null); };
+    const remove = (id) => setData((p) => (Object.assign(Object.assign({}, p), { children: p.children.filter((c) => c.id !== id) })));
+    return (React.createElement(React.Fragment, null,
+        React.createElement("div", { style: { display: "grid", gap: 10 } }, data.children.map((c) => (React.createElement(Card, { key: c.id, style: { display: "flex", alignItems: "center", justifyContent: "space-between" } },
+            React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 } },
+                React.createElement(Avatar, { child: c, small: true }),
+                React.createElement("div", { style: { fontWeight: 700 } }, c.name),
+                React.createElement(PointBadge, { value: c.points, small: true })),
+            React.createElement("div", { style: { display: "flex", gap: 6 } },
+                React.createElement("button", { onClick: () => setForm(Object.assign({}, c)), style: iconBtn },
+                    React.createElement(Icon, { name: "pencil", size: 15, color: C.ink })),
+                React.createElement("button", { onClick: () => remove(c.id), style: iconBtn },
+                    React.createElement(Icon, { name: "trash", size: 15, color: C.red }))))))),
+        React.createElement("button", { onClick: () => setForm({ name: "", color: KID_COLORS[data.children.length % 6], emoji: KID_EMOJIS[data.children.length % 8], points: 0, goalRewardId: null }), style: Object.assign(Object.assign({}, btn(C.primary, "100%")), { marginTop: 12, display: "flex", gap: 6, justifyContent: "center" }) },
+            React.createElement(Icon, { name: "plus", size: 18, color: "#fff" }),
+            "\u304A\u5B50\u3055\u3093\u3092\u8FFD\u52A0"),
+        form && (React.createElement(Overlay, { onClose: () => setForm(null) },
+            React.createElement("h3", { style: { marginTop: 0 } }, "\u304A\u5B50\u3055\u3093\u306E\u767B\u9332"),
+            React.createElement(Label, null, "\u540D\u524D"),
+            React.createElement("input", { value: form.name, onChange: (e) => setForm(Object.assign(Object.assign({}, form), { name: e.target.value })), style: inputStyle, placeholder: "\u4F8B\uFF1A\u307F\u306A\u307F" }),
+            React.createElement(Label, null, "\u30DE\u30FC\u30AF"),
+            React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 } }, KID_EMOJIS.map((e) => (React.createElement("button", { key: e, onClick: () => setForm(Object.assign(Object.assign({}, form), { emoji: e })), style: { fontSize: 22, padding: 6, borderRadius: 12, border: "2px solid " + (form.emoji === e ? C.primary : C.line), background: "#fff", cursor: "pointer" } }, e)))),
+            React.createElement(Label, null, "\u8272"),
+            React.createElement("div", { style: { display: "flex", gap: 8 } }, KID_COLORS.map((col) => (React.createElement("button", { key: col, onClick: () => setForm(Object.assign(Object.assign({}, form), { color: col })), style: { width: 30, height: 30, borderRadius: "50%", background: col, border: "3px solid " + (form.color === col ? C.ink : "#fff"), cursor: "pointer" } })))),
+            React.createElement("button", { onClick: save, style: Object.assign(Object.assign({}, btn(C.primary, "100%")), { marginTop: 14 }) }, "\u4FDD\u5B58\u3059\u308B")))));
 }
-
 function ListEditor({ items, label, fields, onSave, onDelete, accent, hint, habit, childSelect }) {
-  const [form, setForm] = useState(null);
-  const defRule = { type: "daily", target: 30, grace: 0, perWeek: 3 };
-  const fr = form && form.rule ? { ...defRule, ...form.rule } : defRule;
-  const setRule = (patch) => setForm((f) => ({ ...f, rule: { ...defRule, ...(f.rule || {}), ...patch } }));
-  const numField = fields.num;
-  return (
-    <React.Fragment>
-      {hint && <p style={{ fontSize: 13, color: C.sub, margin: "0 2px 10px" }}>{hint}</p>}
-      <div style={{ display: "grid", gap: 10 }}>
-        {items.map((it) => (
-          <Card key={it.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}><span style={{ fontSize: 22 }}>{it.emoji}</span><div style={{ fontWeight: 700 }}>{it.title}</div><PointBadge value={it[numField]} small />{habit && it.isHabit && <Pill color={C.flame}>🔁 {ruleSummary(it)}</Pill>}{childSelect && it.childIds && it.childIds.length > 0 && <Pill color={C.primary}>{it.childIds.map((id) => { const c = childSelect.find((x) => x.id === id); return c ? c.emoji : ""; }).join("")}</Pill>}</div>
-            <div style={{ display: "flex", gap: 6 }}><button onClick={() => setForm({ ...it })} style={iconBtn}><Icon name="pencil" size={15} color={C.ink} /></button><button onClick={() => onDelete(it.id)} style={iconBtn}><Icon name="trash" size={15} color={C.red} /></button></div>
-          </Card>
-        ))}
-      </div>
-      <button onClick={() => { const init = { title: "", emoji: "⭐", isHabit: false, rule: { ...defRule } }; init[numField] = 10; setForm(init); }} style={{ ...btn(accent, "100%"), marginTop: 12, display: "flex", gap: 6, justifyContent: "center" }}><Icon name="plus" size={18} color="#fff" />{label}を追加</button>
-      {form && (
-        <Overlay onClose={() => setForm(null)}>
-          <h3 style={{ marginTop: 0 }}>{label}の登録</h3>
-          <Label>名前</Label><input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} style={inputStyle} placeholder={fields.placeholder} />
-          <Label>マーク（絵文字）</Label><input value={form.emoji} onChange={(e) => setForm({ ...form, emoji: e.target.value.slice(0, 2) })} style={{ ...inputStyle, width: 70, textAlign: "center", fontSize: 22 }} />
-          <Label>{fields.numLabel}</Label><input value={form[numField]} inputMode="numeric" onChange={(e) => { const v = e.target.value.replace(/\D/g, ""); setForm((f) => { const nf = { ...f }; nf[numField] = v; return nf; }); }} style={inputStyle} />
-          {childSelect && (
-            <React.Fragment>
-              <Label>だれのお手伝い？</Label>
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                <button onClick={() => setForm({ ...form, childIds: [] })} style={{ ...chip((!form.childIds || form.childIds.length === 0) ? C.primary : "#fff", (!form.childIds || form.childIds.length === 0) ? "#fff" : C.sub), border: "1px solid " + ((!form.childIds || form.childIds.length === 0) ? C.primary : C.line) }}>全員</button>
-                {childSelect.map((c) => { const on = (form.childIds || []).includes(c.id); return (<button key={c.id} onClick={() => { const cur = form.childIds || []; const nx = on ? cur.filter((x) => x !== c.id) : [...cur, c.id]; setForm({ ...form, childIds: nx }); }} style={{ ...chip(on ? c.color : "#fff", on ? "#fff" : C.sub), border: "1px solid " + (on ? c.color : C.line) }}><span style={{ fontSize: 15 }}>{c.emoji}</span>{c.name}</button>); })}
-              </div>
-              <div style={{ fontSize: 11, color: C.sub, marginTop: 6 }}>「全員」または、このお手伝いをする子を選びます。選んだ子だけのホームに表示されます。</div>
-            </React.Fragment>
-          )}
-          {habit && (
-            <React.Fragment>
-              <div onClick={() => setForm({ ...form, isHabit: !form.isHabit })} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 16, background: "#F7F8FE", borderRadius: 14, padding: "12px 14px", cursor: "pointer" }}>
-                <div><div style={{ fontWeight: 700, fontSize: 14 }}>続ける「習慣」にする</div><div style={{ fontSize: 11, color: C.sub, marginTop: 2 }}>続けた記録をとり、習慣化を判定します</div></div><Switch on={!!form.isHabit} />
-              </div>
-              {form.isHabit && (
-                <div style={{ marginTop: 12, background: "#F7F8FE", borderRadius: 14, padding: 12 }}>
-                  <Label>続け方のルール</Label>
-                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                    {[["daily", "毎日"], ["weekdays", "平日のみ"], ["weekly", "週に何回"]].map((it) => { const v = it[0], lb = it[1]; return (<button key={v} onClick={() => setRule({ type: v })} style={{ ...chip(fr.type === v ? C.primary : "#fff", fr.type === v ? "#fff" : C.sub), border: "1px solid " + (fr.type === v ? C.primary : C.line), fontSize: 13 }}>{lb}</button>); })}
-                  </div>
-                  {fr.type === "weekly" ? (
-                    <React.Fragment>
-                      <Label>週に何回</Label><input value={fr.perWeek} inputMode="numeric" onChange={(e) => setRule({ perWeek: e.target.value.replace(/\D/g, "") })} style={inputStyle} />
-                      <Label>何週続いたら習慣化</Label><input value={fr.target} inputMode="numeric" onChange={(e) => setRule({ target: e.target.value.replace(/\D/g, "") })} style={inputStyle} />
-                      <div style={{ fontSize: 11, color: C.sub, marginTop: 6 }}>例：週3回を4週続けられたら「習慣化」。曜日は自由です。</div>
-                    </React.Fragment>
-                  ) : (
-                    <React.Fragment>
-                      <Label>{fr.type === "weekdays" ? "何平日" : "何日"}連続で習慣化</Label><input value={fr.target} inputMode="numeric" onChange={(e) => setRule({ target: e.target.value.replace(/\D/g, "") })} style={inputStyle} />
-                      <Label>お休み許容（◯日までセーフ・0でなし）</Label><input value={fr.grace} inputMode="numeric" onChange={(e) => setRule({ grace: e.target.value.replace(/\D/g, "") })} style={inputStyle} />
-                      <div style={{ fontSize: 11, color: C.sub, marginTop: 6 }}>{fr.type === "weekdays" ? "土日は数えず、平日だけで連続を判定します。" : "毎日が対象です。お休み許容を1にすると、1日空いても連続が途切れません。"}</div>
-                    </React.Fragment>
-                  )}
-                </div>
-              )}
-            </React.Fragment>
-          )}
-          <button onClick={() => {
-            if (!form.title.trim()) return;
-            const out = { ...form, id: form.id || uid() };
-            out[numField] = Number(form[numField]) || 5;
-            if (habit) { out.isHabit = !!form.isHabit; if (out.isHabit) { const t = fr.type; out.rule = { type: t, target: Number(fr.target) || (t === "weekly" ? 4 : t === "weekdays" ? 20 : 30), grace: Number(fr.grace) || 0, perWeek: Number(fr.perWeek) || 3 }; } else { delete out.rule; } }
-            onSave(out); setForm(null);
-          }} style={{ ...btn(accent, "100%"), marginTop: 16 }}>保存する</button>
-        </Overlay>
-      )}
-    </React.Fragment>
-  );
+    const [form, setForm] = useState(null);
+    const defRule = { type: "daily", target: 30, grace: 0, perWeek: 3 };
+    const fr = form && form.rule ? Object.assign(Object.assign({}, defRule), form.rule) : defRule;
+    const setRule = (patch) => setForm((f) => (Object.assign(Object.assign({}, f), { rule: Object.assign(Object.assign(Object.assign({}, defRule), (f.rule || {})), patch) })));
+    const numField = fields.num;
+    return (React.createElement(React.Fragment, null,
+        hint && React.createElement("p", { style: { fontSize: 13, color: C.sub, margin: "0 2px 10px" } }, hint),
+        React.createElement("div", { style: { display: "grid", gap: 10 } }, items.map((it) => (React.createElement(Card, { key: it.id, style: { display: "flex", alignItems: "center", justifyContent: "space-between" } },
+            React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" } },
+                React.createElement("span", { style: { fontSize: 22 } }, it.emoji),
+                React.createElement("div", { style: { fontWeight: 700 } }, it.title),
+                React.createElement(PointBadge, { value: it[numField], small: true }),
+                habit && it.isHabit && React.createElement(Pill, { color: C.flame },
+                    "\uD83D\uDD01 ",
+                    ruleSummary(it)),
+                childSelect && it.childIds && it.childIds.length > 0 && React.createElement(Pill, { color: C.primary }, it.childIds.map((id) => { const c = childSelect.find((x) => x.id === id); return c ? c.emoji : ""; }).join(""))),
+            React.createElement("div", { style: { display: "flex", gap: 6 } },
+                React.createElement("button", { onClick: () => setForm(Object.assign({}, it)), style: iconBtn },
+                    React.createElement(Icon, { name: "pencil", size: 15, color: C.ink })),
+                React.createElement("button", { onClick: () => onDelete(it.id), style: iconBtn },
+                    React.createElement(Icon, { name: "trash", size: 15, color: C.red }))))))),
+        React.createElement("button", { onClick: () => { const init = { title: "", emoji: "⭐", isHabit: false, rule: Object.assign({}, defRule) }; init[numField] = 10; setForm(init); }, style: Object.assign(Object.assign({}, btn(accent, "100%")), { marginTop: 12, display: "flex", gap: 6, justifyContent: "center" }) },
+            React.createElement(Icon, { name: "plus", size: 18, color: "#fff" }),
+            label,
+            "\u3092\u8FFD\u52A0"),
+        form && (React.createElement(Overlay, { onClose: () => setForm(null) },
+            React.createElement("h3", { style: { marginTop: 0 } },
+                label,
+                "\u306E\u767B\u9332"),
+            React.createElement(Label, null, "\u540D\u524D"),
+            React.createElement("input", { value: form.title, onChange: (e) => setForm(Object.assign(Object.assign({}, form), { title: e.target.value })), style: inputStyle, placeholder: fields.placeholder }),
+            React.createElement(Label, null, "\u30DE\u30FC\u30AF\uFF08\u7D75\u6587\u5B57\uFF09"),
+            React.createElement("input", { value: form.emoji, onChange: (e) => setForm(Object.assign(Object.assign({}, form), { emoji: e.target.value.slice(0, 2) })), style: Object.assign(Object.assign({}, inputStyle), { width: 70, textAlign: "center", fontSize: 22 }) }),
+            React.createElement(Label, null, fields.numLabel),
+            React.createElement("input", { value: form[numField], inputMode: "numeric", onChange: (e) => { const v = e.target.value.replace(/\D/g, ""); setForm((f) => { const nf = Object.assign({}, f); nf[numField] = v; return nf; }); }, style: inputStyle }),
+            childSelect && (React.createElement(React.Fragment, null,
+                React.createElement(Label, null, "\u3060\u308C\u306E\u304A\u624B\u4F1D\u3044\uFF1F"),
+                React.createElement("div", { style: { display: "flex", gap: 6, flexWrap: "wrap" } },
+                    React.createElement("button", { onClick: () => setForm(Object.assign(Object.assign({}, form), { childIds: [] })), style: Object.assign(Object.assign({}, chip((!form.childIds || form.childIds.length === 0) ? C.primary : "#fff", (!form.childIds || form.childIds.length === 0) ? "#fff" : C.sub)), { border: "1px solid " + ((!form.childIds || form.childIds.length === 0) ? C.primary : C.line) }) }, "\u5168\u54E1"),
+                    childSelect.map((c) => { const on = (form.childIds || []).includes(c.id); return (React.createElement("button", { key: c.id, onClick: () => { const cur = form.childIds || []; const nx = on ? cur.filter((x) => x !== c.id) : [...cur, c.id]; setForm(Object.assign(Object.assign({}, form), { childIds: nx })); }, style: Object.assign(Object.assign({}, chip(on ? c.color : "#fff", on ? "#fff" : C.sub)), { border: "1px solid " + (on ? c.color : C.line) }) },
+                        React.createElement("span", { style: { fontSize: 15 } }, c.emoji),
+                        c.name)); })),
+                React.createElement("div", { style: { fontSize: 11, color: C.sub, marginTop: 6 } }, "\u300C\u5168\u54E1\u300D\u307E\u305F\u306F\u3001\u3053\u306E\u304A\u624B\u4F1D\u3044\u3092\u3059\u308B\u5B50\u3092\u9078\u3073\u307E\u3059\u3002\u9078\u3093\u3060\u5B50\u3060\u3051\u306E\u30DB\u30FC\u30E0\u306B\u8868\u793A\u3055\u308C\u307E\u3059\u3002"))),
+            habit && (React.createElement(React.Fragment, null,
+                React.createElement("div", { onClick: () => setForm(Object.assign(Object.assign({}, form), { isHabit: !form.isHabit })), style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 16, background: "#F7F8FE", borderRadius: 14, padding: "12px 14px", cursor: "pointer" } },
+                    React.createElement("div", null,
+                        React.createElement("div", { style: { fontWeight: 700, fontSize: 14 } }, "\u7D9A\u3051\u308B\u300C\u7FD2\u6163\u300D\u306B\u3059\u308B"),
+                        React.createElement("div", { style: { fontSize: 11, color: C.sub, marginTop: 2 } }, "\u7D9A\u3051\u305F\u8A18\u9332\u3092\u3068\u308A\u3001\u7FD2\u6163\u5316\u3092\u5224\u5B9A\u3057\u307E\u3059")),
+                    React.createElement(Switch, { on: !!form.isHabit })),
+                form.isHabit && (React.createElement("div", { style: { marginTop: 12, background: "#F7F8FE", borderRadius: 14, padding: 12 } },
+                    React.createElement(Label, null, "\u7D9A\u3051\u65B9\u306E\u30EB\u30FC\u30EB"),
+                    React.createElement("div", { style: { display: "flex", gap: 6, flexWrap: "wrap" } }, [["daily", "毎日"], ["weekdays", "平日のみ"], ["weekly", "週に何回"]].map((it) => { const v = it[0], lb = it[1]; return (React.createElement("button", { key: v, onClick: () => setRule({ type: v }), style: Object.assign(Object.assign({}, chip(fr.type === v ? C.primary : "#fff", fr.type === v ? "#fff" : C.sub)), { border: "1px solid " + (fr.type === v ? C.primary : C.line), fontSize: 13 }) }, lb)); })),
+                    fr.type === "weekly" ? (React.createElement(React.Fragment, null,
+                        React.createElement(Label, null, "\u9031\u306B\u4F55\u56DE"),
+                        React.createElement("input", { value: fr.perWeek, inputMode: "numeric", onChange: (e) => setRule({ perWeek: e.target.value.replace(/\D/g, "") }), style: inputStyle }),
+                        React.createElement(Label, null, "\u4F55\u9031\u7D9A\u3044\u305F\u3089\u7FD2\u6163\u5316"),
+                        React.createElement("input", { value: fr.target, inputMode: "numeric", onChange: (e) => setRule({ target: e.target.value.replace(/\D/g, "") }), style: inputStyle }),
+                        React.createElement("div", { style: { fontSize: 11, color: C.sub, marginTop: 6 } }, "\u4F8B\uFF1A\u90313\u56DE\u30924\u9031\u7D9A\u3051\u3089\u308C\u305F\u3089\u300C\u7FD2\u6163\u5316\u300D\u3002\u66DC\u65E5\u306F\u81EA\u7531\u3067\u3059\u3002"))) : (React.createElement(React.Fragment, null,
+                        React.createElement(Label, null,
+                            fr.type === "weekdays" ? "何平日" : "何日",
+                            "\u9023\u7D9A\u3067\u7FD2\u6163\u5316"),
+                        React.createElement("input", { value: fr.target, inputMode: "numeric", onChange: (e) => setRule({ target: e.target.value.replace(/\D/g, "") }), style: inputStyle }),
+                        React.createElement(Label, null, "\u304A\u4F11\u307F\u8A31\u5BB9\uFF08\u25EF\u65E5\u307E\u3067\u30BB\u30FC\u30D5\u30FB0\u3067\u306A\u3057\uFF09"),
+                        React.createElement("input", { value: fr.grace, inputMode: "numeric", onChange: (e) => setRule({ grace: e.target.value.replace(/\D/g, "") }), style: inputStyle }),
+                        React.createElement("div", { style: { fontSize: 11, color: C.sub, marginTop: 6 } }, fr.type === "weekdays" ? "土日は数えず、平日だけで連続を判定します。" : "毎日が対象です。お休み許容を1にすると、1日空いても連続が途切れません。"))))))),
+            React.createElement("button", { onClick: () => {
+                    if (!form.title.trim())
+                        return;
+                    const out = Object.assign(Object.assign({}, form), { id: form.id || uid() });
+                    out[numField] = Number(form[numField]) || 5;
+                    if (habit) {
+                        out.isHabit = !!form.isHabit;
+                        if (out.isHabit) {
+                            const t = fr.type;
+                            out.rule = { type: t, target: Number(fr.target) || (t === "weekly" ? 4 : t === "weekdays" ? 20 : 30), grace: Number(fr.grace) || 0, perWeek: Number(fr.perWeek) || 3 };
+                        }
+                        else {
+                            delete out.rule;
+                        }
+                    }
+                    onSave(out);
+                    setForm(null);
+                }, style: Object.assign(Object.assign({}, btn(accent, "100%")), { marginTop: 16 }) }, "\u4FDD\u5B58\u3059\u308B")))));
 }
-
 function ManageTasks({ data, setData }) {
-  return <ListEditor items={data.tasks} label="お手伝い" accent={C.mint} habit childSelect={data.children}
-    hint="お手伝いの内容・ポイント・担当するお子さんを自由に設定できます。「だれのお手伝い？」で全員か特定の子を選べます。続けたいものは「習慣」にし、続け方のルール（毎日／平日のみ／週◯回）も選べます。"
-    fields={{ num: "points", numLabel: "もらえるポイント", placeholder: "例：宿題をする" }}
-    onSave={(it) => setData((p) => ({ ...p, tasks: p.tasks.some((x) => x.id === it.id) ? p.tasks.map((x) => x.id === it.id ? it : x) : [...p.tasks, it] }))}
-    onDelete={(id) => setData((p) => ({ ...p, tasks: p.tasks.filter((x) => x.id !== id) }))} />;
+    return React.createElement(ListEditor, { items: data.tasks, label: "\u304A\u624B\u4F1D\u3044", accent: C.mint, habit: true, childSelect: data.children, hint: "\u304A\u624B\u4F1D\u3044\u306E\u5185\u5BB9\u30FB\u30DD\u30A4\u30F3\u30C8\u30FB\u62C5\u5F53\u3059\u308B\u304A\u5B50\u3055\u3093\u3092\u81EA\u7531\u306B\u8A2D\u5B9A\u3067\u304D\u307E\u3059\u3002\u300C\u3060\u308C\u306E\u304A\u624B\u4F1D\u3044\uFF1F\u300D\u3067\u5168\u54E1\u304B\u7279\u5B9A\u306E\u5B50\u3092\u9078\u3079\u307E\u3059\u3002\u7D9A\u3051\u305F\u3044\u3082\u306E\u306F\u300C\u7FD2\u6163\u300D\u306B\u3057\u3001\u7D9A\u3051\u65B9\u306E\u30EB\u30FC\u30EB\uFF08\u6BCE\u65E5\uFF0F\u5E73\u65E5\u306E\u307F\uFF0F\u9031\u25EF\u56DE\uFF09\u3082\u9078\u3079\u307E\u3059\u3002", fields: { num: "points", numLabel: "もらえるポイント", placeholder: "例：宿題をする" }, onSave: (it) => setData((p) => (Object.assign(Object.assign({}, p), { tasks: p.tasks.some((x) => x.id === it.id) ? p.tasks.map((x) => x.id === it.id ? it : x) : [...p.tasks, it] }))), onDelete: (id) => setData((p) => (Object.assign(Object.assign({}, p), { tasks: p.tasks.filter((x) => x.id !== id) }))) });
 }
 function RewardRequests({ data, setData }) {
-  const reqs = data.requests || [];
-  const [costs, setCosts] = useState({});
-  if (!reqs.length) return null;
-  const childName = (id) => { const c = data.children.find((x) => x.id === id); return c ? c.name : ""; };
-  const approve = (req) => {
-    const cost = Number(costs[req.id]) || 0;
-    setData((p) => ({ ...p, rewards: [...p.rewards, { id: uid(), title: req.title, emoji: req.emoji, cost }], requests: (p.requests || []).filter((r) => r.id !== req.id) }));
-  };
-  const reject = (id) => setData((p) => ({ ...p, requests: (p.requests || []).filter((r) => r.id !== id) }));
-  return (
-    <div style={{ marginBottom: 14 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 800, fontSize: 14, margin: "0 2px 8px", color: C.grape }}><Icon name="sparkles" size={16} color={C.grape} />お子さんからのリクエスト（{reqs.length}件）</div>
-      <div style={{ display: "grid", gap: 10 }}>
-        {reqs.map((r) => (
-          <Card key={r.id} style={{ border: "1.5px solid " + C.grape }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}><span style={{ fontSize: 22 }}>{r.emoji}</span><div style={{ fontWeight: 700 }}>{r.title}</div><Pill color={C.sun}>{childName(r.childId)}</Pill></div>
-            <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 10 }}>
-              <input value={costs[r.id] || ""} inputMode="numeric" placeholder="必要P" onChange={(e) => setCosts({ ...costs, [r.id]: e.target.value.replace(/\D/g, "") })} style={{ ...inputStyle, flex: 1 }} />
-              <button onClick={() => approve(r)} style={chip(C.mint)}>承認</button>
-              <button onClick={() => reject(r.id)} style={chip("#EEF0F7", C.sub)}>却下</button>
-            </div>
-          </Card>
-        ))}
-      </div>
-    </div>
-  );
+    const reqs = data.requests || [];
+    const [costs, setCosts] = useState({});
+    if (!reqs.length)
+        return null;
+    const childName = (id) => { const c = data.children.find((x) => x.id === id); return c ? c.name : ""; };
+    const approve = (req) => {
+        const cost = Number(costs[req.id]) || 0;
+        setData((p) => (Object.assign(Object.assign({}, p), { rewards: [...p.rewards, { id: uid(), title: req.title, emoji: req.emoji, cost }], requests: (p.requests || []).filter((r) => r.id !== req.id) })));
+    };
+    const reject = (id) => setData((p) => (Object.assign(Object.assign({}, p), { requests: (p.requests || []).filter((r) => r.id !== id) })));
+    return (React.createElement("div", { style: { marginBottom: 14 } },
+        React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6, fontWeight: 800, fontSize: 14, margin: "0 2px 8px", color: C.grape } },
+            React.createElement(Icon, { name: "sparkles", size: 16, color: C.grape }),
+            "\u304A\u5B50\u3055\u3093\u304B\u3089\u306E\u30EA\u30AF\u30A8\u30B9\u30C8\uFF08",
+            reqs.length,
+            "\u4EF6\uFF09"),
+        React.createElement("div", { style: { display: "grid", gap: 10 } }, reqs.map((r) => (React.createElement(Card, { key: r.id, style: { border: "1.5px solid " + C.grape } },
+            React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 } },
+                React.createElement("span", { style: { fontSize: 22 } }, r.emoji),
+                React.createElement("div", { style: { fontWeight: 700 } }, r.title),
+                React.createElement(Pill, { color: C.sun }, childName(r.childId))),
+            React.createElement("div", { style: { display: "flex", gap: 8, alignItems: "center", marginTop: 10 } },
+                React.createElement("input", { value: costs[r.id] || "", inputMode: "numeric", placeholder: "\u5FC5\u8981P", onChange: (e) => setCosts(Object.assign(Object.assign({}, costs), { [r.id]: e.target.value.replace(/\D/g, "") })), style: Object.assign(Object.assign({}, inputStyle), { flex: 1 }) }),
+                React.createElement("button", { onClick: () => approve(r), style: chip(C.mint) }, "\u627F\u8A8D"),
+                React.createElement("button", { onClick: () => reject(r.id), style: chip("#EEF0F7", C.sub) }, "\u5374\u4E0B"))))))));
 }
 function ManageRewards({ data, setData }) {
-  return (
-    <React.Fragment>
-      <RewardRequests data={data} setData={setData} />
-      <ListEditor items={data.rewards} label="ごほうび" accent={C.grape}
-        hint="ごほうびは安いものから高いものまで自由に登録できます。高いごほうびは「目標」に設定できます。お子さんがリクエストしたごほうびは、上に表示され、必要ポイントを入れて「承認」するとリストに加わります。"
-        fields={{ num: "cost", numLabel: "必要なポイント", placeholder: "例：ゲーム30分" }}
-        onSave={(it) => setData((p) => ({ ...p, rewards: p.rewards.some((x) => x.id === it.id) ? p.rewards.map((x) => x.id === it.id ? it : x) : [...p.rewards, it] }))}
-        onDelete={(id) => setData((p) => ({ ...p, rewards: p.rewards.filter((x) => x.id !== id), children: p.children.map((c) => c.goalRewardId === id ? { ...c, goalRewardId: null } : c) }))} />
-    </React.Fragment>
-  );
+    return (React.createElement(React.Fragment, null,
+        React.createElement(RewardRequests, { data: data, setData: setData }),
+        React.createElement(ListEditor, { items: data.rewards, label: "\u3054\u307B\u3046\u3073", accent: C.grape, hint: "\u3054\u307B\u3046\u3073\u306F\u5B89\u3044\u3082\u306E\u304B\u3089\u9AD8\u3044\u3082\u306E\u307E\u3067\u81EA\u7531\u306B\u767B\u9332\u3067\u304D\u307E\u3059\u3002\u9AD8\u3044\u3054\u307B\u3046\u3073\u306F\u300C\u76EE\u6A19\u300D\u306B\u8A2D\u5B9A\u3067\u304D\u307E\u3059\u3002\u304A\u5B50\u3055\u3093\u304C\u30EA\u30AF\u30A8\u30B9\u30C8\u3057\u305F\u3054\u307B\u3046\u3073\u306F\u3001\u4E0A\u306B\u8868\u793A\u3055\u308C\u3001\u5FC5\u8981\u30DD\u30A4\u30F3\u30C8\u3092\u5165\u308C\u3066\u300C\u627F\u8A8D\u300D\u3059\u308B\u3068\u30EA\u30B9\u30C8\u306B\u52A0\u308F\u308A\u307E\u3059\u3002", fields: { num: "cost", numLabel: "必要なポイント", placeholder: "例：ゲーム30分" }, onSave: (it) => setData((p) => (Object.assign(Object.assign({}, p), { rewards: p.rewards.some((x) => x.id === it.id) ? p.rewards.map((x) => x.id === it.id ? it : x) : [...p.rewards, it] }))), onDelete: (id) => setData((p) => (Object.assign(Object.assign({}, p), { rewards: p.rewards.filter((x) => x.id !== id), children: p.children.map((c) => c.goalRewardId === id ? Object.assign(Object.assign({}, c), { goalRewardId: null }) : c) }))) })));
 }
 function ManageBonus({ data, setData }) {
-  const [rate, setRate] = useState(String(data.bonusRate == null ? 10 : data.bonusRate));
-  const cm = monthKey(Date.now());
-  const applied = !!(data.bonusApplied || {})[cm];
-  return (
-    <Card>
-      <div style={{ fontWeight: 800, marginBottom: 4 }}>月末ボーナス（利息）</div>
-      <p style={{ fontSize: 13, color: C.sub, marginTop: 0 }}>月が変わると、保護者ホームに「今月のボーナス」のお知らせが出ます。今もっているポイントの○%（端数は切り上げ）をボーナスとして加えられます。使わずに貯めるほど増える、貯金・投資の練習になります。</p>
-      <Label>ボーナスの割合（％）</Label>
-      <input value={rate} inputMode="numeric" onChange={(e) => setRate(e.target.value.replace(/\D/g, ""))} style={inputStyle} placeholder="例：10" />
-      <div style={{ fontSize: 11, color: C.sub, marginTop: 6 }}>例：10％なら、100ポイントで＋10、155ポイントで＋16（切り上げ）。0にするとボーナスなしです。</div>
-      <button onClick={() => setData((p) => ({ ...p, bonusRate: Number(rate) || 0 }))} style={{ ...btn(C.ink, "100%"), marginTop: 12 }}>保存する</button>
-      <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px solid " + C.line }}>
-        <div style={{ fontSize: 13, color: C.sub }}>今月（{cm}）のボーナス：{applied ? "処理ずみ" : "まだ"}</div>
-        {applied && <button onClick={() => setData((p) => { const ba = { ...(p.bonusApplied || {}) }; delete ba[cm]; return { ...p, bonusApplied: ba }; })} style={{ ...chip("#fff", C.primary), border: "1px solid " + C.primary, marginTop: 8 }}>もう一度お知らせを出す</button>}
-      </div>
-    </Card>
-  );
+    const [rate, setRate] = useState(String(data.bonusRate == null ? 10 : data.bonusRate));
+    const cm = monthKey(Date.now());
+    const applied = !!(data.bonusApplied || {})[cm];
+    return (React.createElement(Card, null,
+        React.createElement("div", { style: { fontWeight: 800, marginBottom: 4 } }, "\u6708\u672B\u30DC\u30FC\u30CA\u30B9\uFF08\u5229\u606F\uFF09"),
+        React.createElement("p", { style: { fontSize: 13, color: C.sub, marginTop: 0 } }, "\u6708\u304C\u5909\u308F\u308B\u3068\u3001\u4FDD\u8B77\u8005\u30DB\u30FC\u30E0\u306B\u300C\u4ECA\u6708\u306E\u30DC\u30FC\u30CA\u30B9\u300D\u306E\u304A\u77E5\u3089\u305B\u304C\u51FA\u307E\u3059\u3002\u4ECA\u3082\u3063\u3066\u3044\u308B\u30DD\u30A4\u30F3\u30C8\u306E\u25CB%\uFF08\u7AEF\u6570\u306F\u5207\u308A\u4E0A\u3052\uFF09\u3092\u30DC\u30FC\u30CA\u30B9\u3068\u3057\u3066\u52A0\u3048\u3089\u308C\u307E\u3059\u3002\u4F7F\u308F\u305A\u306B\u8CAF\u3081\u308B\u307B\u3069\u5897\u3048\u308B\u3001\u8CAF\u91D1\u30FB\u6295\u8CC7\u306E\u7DF4\u7FD2\u306B\u306A\u308A\u307E\u3059\u3002"),
+        React.createElement(Label, null, "\u30DC\u30FC\u30CA\u30B9\u306E\u5272\u5408\uFF08\uFF05\uFF09"),
+        React.createElement("input", { value: rate, inputMode: "numeric", onChange: (e) => setRate(e.target.value.replace(/\D/g, "")), style: inputStyle, placeholder: "\u4F8B\uFF1A10" }),
+        React.createElement("div", { style: { fontSize: 11, color: C.sub, marginTop: 6 } }, "\u4F8B\uFF1A10\uFF05\u306A\u3089\u3001100\u30DD\u30A4\u30F3\u30C8\u3067\uFF0B10\u3001155\u30DD\u30A4\u30F3\u30C8\u3067\uFF0B16\uFF08\u5207\u308A\u4E0A\u3052\uFF09\u30020\u306B\u3059\u308B\u3068\u30DC\u30FC\u30CA\u30B9\u306A\u3057\u3067\u3059\u3002"),
+        React.createElement("button", { onClick: () => setData((p) => (Object.assign(Object.assign({}, p), { bonusRate: Number(rate) || 0 }))), style: Object.assign(Object.assign({}, btn(C.ink, "100%")), { marginTop: 12 }) }, "\u4FDD\u5B58\u3059\u308B"),
+        React.createElement("div", { style: { marginTop: 14, paddingTop: 12, borderTop: "1px solid " + C.line } },
+            React.createElement("div", { style: { fontSize: 13, color: C.sub } },
+                "\u4ECA\u6708\uFF08",
+                cm,
+                "\uFF09\u306E\u30DC\u30FC\u30CA\u30B9\uFF1A",
+                applied ? "処理ずみ" : "まだ"),
+            applied && React.createElement("button", { onClick: () => setData((p) => { const ba = Object.assign({}, (p.bonusApplied || {})); delete ba[cm]; return Object.assign(Object.assign({}, p), { bonusApplied: ba }); }), style: Object.assign(Object.assign({}, chip("#fff", C.primary)), { border: "1px solid " + C.primary, marginTop: 8 }) }, "\u3082\u3046\u4E00\u5EA6\u304A\u77E5\u3089\u305B\u3092\u51FA\u3059"))));
 }
 function ManageSecurity({ data, setData }) {
-  const [pin, setPin] = useState(data.pin);
-  return (
-    <Card>
-      <div style={{ fontWeight: 800, marginBottom: 4 }}>保護者モードのロック</div>
-      <p style={{ fontSize: 13, color: C.sub, marginTop: 0 }}>4けたのパスコードを決めると、お子さんが勝手にポイントを変更できなくなります。空にするとロックなしです。</p>
-      <input value={pin} inputMode="numeric" maxLength={4} placeholder="例：1234" onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))} style={{ ...inputStyle, letterSpacing: 6, textAlign: "center", fontSize: 20 }} />
-      <button onClick={() => setData((p) => ({ ...p, pin }))} style={{ ...btn(C.ink, "100%"), marginTop: 10 }}>{pin ? "パスコードを設定" : "ロックをなしにする"}</button>
-    </Card>
-  );
+    const [pin, setPin] = useState(data.pin);
+    return (React.createElement(Card, null,
+        React.createElement("div", { style: { fontWeight: 800, marginBottom: 4 } }, "\u4FDD\u8B77\u8005\u30E2\u30FC\u30C9\u306E\u30ED\u30C3\u30AF"),
+        React.createElement("p", { style: { fontSize: 13, color: C.sub, marginTop: 0 } }, "4\u3051\u305F\u306E\u30D1\u30B9\u30B3\u30FC\u30C9\u3092\u6C7A\u3081\u308B\u3068\u3001\u304A\u5B50\u3055\u3093\u304C\u52DD\u624B\u306B\u30DD\u30A4\u30F3\u30C8\u3092\u5909\u66F4\u3067\u304D\u306A\u304F\u306A\u308A\u307E\u3059\u3002\u7A7A\u306B\u3059\u308B\u3068\u30ED\u30C3\u30AF\u306A\u3057\u3067\u3059\u3002"),
+        React.createElement("input", { value: pin, inputMode: "numeric", maxLength: 4, placeholder: "\u4F8B\uFF1A1234", onChange: (e) => setPin(e.target.value.replace(/\D/g, "")), style: Object.assign(Object.assign({}, inputStyle), { letterSpacing: 6, textAlign: "center", fontSize: 20 }) }),
+        React.createElement("button", { onClick: () => setData((p) => (Object.assign(Object.assign({}, p), { pin }))), style: Object.assign(Object.assign({}, btn(C.ink, "100%")), { marginTop: 10 }) }, pin ? "パスコードを設定" : "ロックをなしにする")));
 }
-
 function RecentHistory({ data, childId, limit }) {
-  limit = limit || 5;
-  const items = data.history.filter((h) => (childId ? h.childId === childId : true)).sort((a, b) => b.ts - a.ts).slice(0, limit);
-  if (!items.length) return null;
-  return (
-    <React.Fragment>
-      <SectionTitle icon={<Icon name="star" size={18} color={C.sun} />}>最近の記録</SectionTitle>
-      <div style={{ display: "grid", gap: 8 }}>{items.map((h) => { const child = data.children.find((c) => c.id === h.childId); const earn = h.type === "earn" || h.type === "bonus"; return (<div key={h.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#fff", borderRadius: 14, padding: "10px 14px", border: "1px solid " + C.line }}><div style={{ display: "flex", alignItems: "center", gap: 10 }}><span style={{ fontSize: 18 }}>{child ? child.emoji : ""}</span><div><div style={{ fontWeight: 700, fontSize: 14 }}>{h.label}</div><div style={{ fontSize: 11, color: C.sub }}>{child ? child.name : ""}・{fmtDay(h.ts)}</div></div></div><span style={{ fontWeight: 800, color: earn ? C.mint : C.red }}>{earn ? "+" : "−"}{h.amount}P</span></div>); })}</div>
-    </React.Fragment>
-  );
+    limit = limit || 5;
+    const items = data.history.filter((h) => (childId ? h.childId === childId : true)).sort((a, b) => b.ts - a.ts).slice(0, limit);
+    if (!items.length)
+        return null;
+    return (React.createElement(React.Fragment, null,
+        React.createElement(SectionTitle, { icon: React.createElement(Icon, { name: "star", size: 18, color: C.sun }) }, "\u6700\u8FD1\u306E\u8A18\u9332"),
+        React.createElement("div", { style: { display: "grid", gap: 8 } }, items.map((h) => { const child = data.children.find((c) => c.id === h.childId); const earn = h.type === "earn" || h.type === "bonus"; return (React.createElement("div", { key: h.id, style: { display: "flex", alignItems: "center", justifyContent: "space-between", background: "#fff", borderRadius: 14, padding: "10px 14px", border: "1px solid " + C.line } },
+            React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 } },
+                React.createElement("span", { style: { fontSize: 18 } }, child ? child.emoji : ""),
+                React.createElement("div", null,
+                    React.createElement("div", { style: { fontWeight: 700, fontSize: 14 } }, h.label),
+                    React.createElement("div", { style: { fontSize: 11, color: C.sub } },
+                        child ? child.name : "",
+                        "\u30FB",
+                        fmtDay(h.ts)))),
+            React.createElement("span", { style: { fontWeight: 800, color: earn ? C.mint : C.red } },
+                earn ? "+" : "−",
+                h.amount,
+                "P"))); }))));
 }
-
 function BottomNav({ mode, tab, setTab }) {
-  const parent = [["home", "ホーム", "home"], ["reward", "ごほうび", "gift"], ["goal", "目標", "target"], ["chart", "記録", "chart"], ["manage", "管理", "settings"]];
-  const child = [["home", "ポイント", "home"], ["reward", "ごほうび", "gift"], ["chart", "記録", "chart"]];
-  const nav = mode === "parent" ? parent : child;
-  return (
-    <nav style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "#fff", borderTop: "1px solid " + C.line, display: "flex", justifyContent: "space-around", padding: "8px 4px calc(12px + env(safe-area-inset-bottom))", maxWidth: 480, margin: "0 auto" }}>
-      {nav.map((it) => { const k = it[0], label = it[1], ic = it[2]; const on = tab === k; return (<button key={k} onClick={() => setTab(k)} style={{ border: "none", background: "none", cursor: "pointer", fontFamily: FONT, display: "flex", flexDirection: "column", alignItems: "center", gap: 3, color: on ? C.primary : C.sub, fontWeight: on ? 800 : 600, fontSize: 11, flex: 1 }}><Icon name={ic} size={22} color={on ? C.primary : C.sub} />{label}</button>); })}
-    </nav>
-  );
+    const parent = [["home", "ホーム", "home"], ["reward", "ごほうび", "gift"], ["goal", "目標", "target"], ["chart", "記録", "chart"], ["manage", "管理", "settings"]];
+    const child = [["home", "ポイント", "home"], ["reward", "ごほうび", "gift"], ["chart", "記録", "chart"]];
+    const nav = mode === "parent" ? parent : child;
+    return (React.createElement("nav", { style: { position: "fixed", bottom: 0, left: 0, right: 0, background: "#fff", borderTop: "1px solid " + C.line, display: "flex", justifyContent: "space-around", padding: "8px 4px calc(12px + env(safe-area-inset-bottom))", maxWidth: 480, margin: "0 auto" } }, nav.map((it) => { const k = it[0], label = it[1], ic = it[2]; const on = tab === k; return (React.createElement("button", { key: k, onClick: () => setTab(k), style: { border: "none", background: "none", cursor: "pointer", fontFamily: FONT, display: "flex", flexDirection: "column", alignItems: "center", gap: 3, color: on ? C.primary : C.sub, fontWeight: on ? 800 : 600, fontSize: 11, flex: 1 } },
+        React.createElement(Icon, { name: ic, size: 22, color: on ? C.primary : C.sub }),
+        label)); })));
 }
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App, null));
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 </script>
 
 
