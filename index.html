@@ -43,6 +43,8 @@ const uid = () => Math.random().toString(36).slice(2, 9);
 const fmtDay = (ts) => { const d = new Date(ts); return (d.getMonth() + 1) + "/" + d.getDate(); };
 const startOfDay = (ts) => { const d = new Date(ts); d.setHours(0, 0, 0, 0); return d.getTime(); };
 const dayKey = (ts) => { const d = new Date(ts); return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); };
+const monthKey = (ts) => { const d = new Date(ts); return d.getFullYear() + "-" + (d.getMonth() + 1); };
+const tasksFor = (data, childId) => data.tasks.filter((t) => !t.childIds || t.childIds.length === 0 || t.childIds.includes(childId));
 const isWeekend = (ts) => { const g = new Date(ts).getDay(); return g === 0 || g === 6; };
 const startOfWeek = (ts) => { const d = new Date(startOfDay(ts)); const wd = (d.getDay() + 6) % 7; return startOfDay(d.getTime() - wd * ONE_DAY); };
 
@@ -143,6 +145,8 @@ function seedData() {
     ],
     history: H,
     requests: [],
+    bonusRate: 10,
+    bonusApplied: {},
   };
 }
 
@@ -246,7 +250,7 @@ function Switch({ on }) { return <span style={{ width: 42, height: 24, borderRad
 
 /* ---------- アプリ本体 ---------- */
 function App() {
-  const [data, setData] = useState(() => { const d = loadData() || seedData(); if (!d.requests) d.requests = []; return d; });
+  const [data, setData] = useState(() => { const d = loadData() || seedData(); if (!d.requests) d.requests = []; if (d.bonusRate == null) d.bonusRate = 10; if (!d.bonusApplied) d.bonusApplied = {}; return d; });
   const [mode, setMode] = useState("parent");
   const [tab, setTab] = useState("home");
   const [manageSub, setManageSub] = useState("children");
@@ -257,6 +261,20 @@ function App() {
   const award = (childId, task) => setData((p) => ({ ...p, children: p.children.map((c) => c.id === childId ? { ...c, points: c.points + task.points } : c), history: [...p.history, { id: uid(), childId, type: "earn", amount: task.points, label: task.title, taskId: task.id, ts: Date.now() }] }));
   const redeem = (childId, reward) => setData((p) => ({ ...p, children: p.children.map((c) => c.id === childId ? { ...c, points: c.points - reward.cost, goalRewardId: c.goalRewardId === reward.id ? null : c.goalRewardId } : c), history: [...p.history, { id: uid(), childId, type: "spend", amount: reward.cost, label: reward.title, ts: Date.now() }] }));
   const penalize = (childId, reason, amount) => setData((p) => ({ ...p, children: p.children.map((c) => c.id === childId ? { ...c, points: Math.max(0, c.points - amount) } : c), history: [...p.history, { id: uid(), childId, type: "penalty", amount, label: reason, ts: Date.now() }] }));
+  const runBonus = (apply) => setData((p) => {
+    const cm = monthKey(Date.now());
+    const rate = Number(p.bonusRate) || 0;
+    let children = p.children, history = p.history;
+    if (apply) {
+      history = [...p.history];
+      children = p.children.map((c) => {
+        const b = Math.ceil(c.points * rate / 100);
+        if (b > 0) history.push({ id: uid(), childId: c.id, type: "bonus", amount: b, label: "今月のボーナス（利息" + rate + "%）", ts: Date.now() });
+        return b > 0 ? { ...c, points: c.points + b } : c;
+      });
+    }
+    return { ...p, children, history, bonusApplied: { ...(p.bonusApplied || {}), [cm]: true } };
+  });
 
   return (
     <div style={{ fontFamily: FONT, background: C.bg, minHeight: "100vh", color: C.ink }}>
@@ -264,7 +282,7 @@ function App() {
         <Header data={data} mode={mode} setMode={setMode} setTab={setTab} />
         <main style={{ padding: "8px 16px" }}>
           {mode === "parent"
-            ? <ParentArea tab={tab} data={data} setData={setData} selectedChild={selectedChild} setSelectedChild={setSelectedChild} award={award} redeem={redeem} penalize={penalize} childById={childById} setTab={setTab} manageSub={manageSub} setManageSub={setManageSub} />
+            ? <ParentArea tab={tab} data={data} setData={setData} selectedChild={selectedChild} setSelectedChild={setSelectedChild} award={award} redeem={redeem} penalize={penalize} runBonus={runBonus} childById={childById} setTab={setTab} manageSub={manageSub} setManageSub={setManageSub} />
             : <ChildArea tab={tab} data={data} setData={setData} selectedChild={selectedChild} setSelectedChild={setSelectedChild} childById={childById} />}
         </main>
       </div>
@@ -304,7 +322,7 @@ function PinDialog({ correct, onOk, onClose }) {
 
 function ParentArea(props) {
   const { tab } = props;
-  if (tab === "home") return <ParentHome data={props.data} setData={props.setData} award={props.award} penalize={props.penalize} />;
+  if (tab === "home") return <ParentHome data={props.data} setData={props.setData} award={props.award} penalize={props.penalize} runBonus={props.runBonus} />;
   if (tab === "reward") return <ParentReward data={props.data} redeem={props.redeem} childById={props.childById} selectedChild={props.selectedChild} setSelectedChild={props.setSelectedChild} />;
   if (tab === "goal") return <GoalView data={props.data} setData={props.setData} redeem={props.redeem} editable />;
   if (tab === "chart") return <RecordView data={props.data} selectedChild={props.selectedChild} setSelectedChild={props.setSelectedChild} />;
@@ -312,13 +330,29 @@ function ParentArea(props) {
   return null;
 }
 
-function ParentHome({ data, setData, award, penalize }) {
+function ParentHome({ data, setData, award, penalize, runBonus }) {
   const [openChild, setOpenChild] = useState(null);
   const [penaltyFor, setPenaltyFor] = useState(null);
   const [pReason, setPReason] = useState("");
   const [pAmt, setPAmt] = useState("1");
+  const cm = monthKey(Date.now());
+  const needBonus = !((data.bonusApplied || {})[cm]);
+  const rate = Number(data.bonusRate) || 0;
   return (
     <React.Fragment>
+      {needBonus && rate > 0 && (
+        <Card style={{ marginTop: 12, border: "1.5px solid " + C.sun, background: "#FFFBF0" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 800 }}><Icon name="coins" size={18} color={C.sun} />今月のボーナス（利息{rate}%）</div>
+          <p style={{ fontSize: 13, color: C.sub, margin: "8px 0 0" }}>月が変わりました。今もっているポイントの{rate}%（切り上げ）をボーナスとして加えられます。使わずに貯めるほど増える、貯金・投資の練習になります。</p>
+          <div style={{ display: "grid", gap: 4, margin: "10px 0" }}>
+            {data.children.map((c) => { const b = Math.ceil(c.points * rate / 100); return (<div key={c.id} style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}><span>{c.emoji} {c.name}（{c.points}P）</span><span style={{ fontWeight: 800, color: C.mint }}>＋{b}P</span></div>); })}
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={() => runBonus(false)} style={btn("#EEF0F7", "40%", C.ink)}>今月はつけない</button>
+            <button onClick={() => runBonus(true)} style={btn(C.sun, "60%")}>ボーナスをつける</button>
+          </div>
+        </Card>
+      )}
       {(data.requests || []).length > 0 && <div style={{ marginTop: 14 }}><RewardRequests data={data} setData={setData} /></div>}
       <SectionTitle icon={<Icon name="sparkles" size={18} color={C.sun} />}>お手伝いを記録</SectionTitle>
       <p style={{ fontSize: 13, color: C.sub, margin: "0 2px 10px" }}>お子さんを選び、できたことをタップするとポイントがたまります。習慣に設定した項目は続けた記録も同時に残ります。</p>
@@ -334,7 +368,7 @@ function ParentHome({ data, setData, award, penalize }) {
               {openChild === c.id && (
                 <React.Fragment>
                   <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                    {data.tasks.map((t) => {
+                    {tasksFor(data, c.id).map((t) => {
                       const st = t.isHabit ? habitStats(data.history, c.id, t) : null;
                       return (
                         <button key={t.id} onClick={() => award(c.id, t)} style={taskBtn}>
@@ -417,7 +451,7 @@ function ChildHome({ data, child }) {
   const reached = goal && child.points >= goal.cost;
   const earned = earnedOf(data.history, child.id);
   const toNext = 100 - (earned % 100);
-  const habits = data.tasks.filter((t) => t.isHabit);
+  const habits = tasksFor(data, child.id).filter((t) => t.isHabit);
   return (
     <React.Fragment>
       <Card style={{ background: "linear-gradient(135deg, " + child.color + ", " + child.color + "cc)", color: "#fff", textAlign: "center", padding: 24, marginTop: 8 }}>
@@ -555,7 +589,7 @@ function RecordView({ data, selectedChild, setSelectedChild, hidePicker }) {
     return Object.keys(byDay).map((day) => ({ day, total: byDay[day] }));
   }, [data, child]);
   const totalEarned = series.length ? series[series.length - 1].total : 0;
-  const habits = data.tasks.filter((t) => t.isHabit);
+  const habits = tasksFor(data, child.id).filter((t) => t.isHabit);
   return (
     <React.Fragment>
       <SectionTitle icon={<Icon name="chart" size={18} color={C.mint} />}>がんばりの記録</SectionTitle>
@@ -598,7 +632,7 @@ function HabitCard({ data, child, task }) {
 }
 
 function Manage({ data, setData, sub, setSub }) {
-  const tabs = [["children", "お子さん", "users"], ["tasks", "お手伝い", "sparkles"], ["rewards", "ごほうび", "gift"], ["security", "ロック", "lock"]];
+  const tabs = [["children", "お子さん", "users"], ["tasks", "お手伝い", "sparkles"], ["rewards", "ごほうび", "gift"], ["bonus", "ボーナス", "coins"], ["security", "ロック", "lock"]];
   return (
     <React.Fragment>
       <SectionTitle icon={<Icon name="settings" size={18} color={C.sub} />}>管理</SectionTitle>
@@ -606,6 +640,7 @@ function Manage({ data, setData, sub, setSub }) {
       {sub === "children" && <ManageChildren data={data} setData={setData} />}
       {sub === "tasks" && <ManageTasks data={data} setData={setData} />}
       {sub === "rewards" && <ManageRewards data={data} setData={setData} />}
+      {sub === "bonus" && <ManageBonus data={data} setData={setData} />}
       {sub === "security" && <ManageSecurity data={data} setData={setData} />}
     </React.Fragment>
   );
@@ -632,7 +667,7 @@ function ManageChildren({ data, setData }) {
   );
 }
 
-function ListEditor({ items, label, fields, onSave, onDelete, accent, hint, habit }) {
+function ListEditor({ items, label, fields, onSave, onDelete, accent, hint, habit, childSelect }) {
   const [form, setForm] = useState(null);
   const defRule = { type: "daily", target: 30, grace: 0, perWeek: 3 };
   const fr = form && form.rule ? { ...defRule, ...form.rule } : defRule;
@@ -644,7 +679,7 @@ function ListEditor({ items, label, fields, onSave, onDelete, accent, hint, habi
       <div style={{ display: "grid", gap: 10 }}>
         {items.map((it) => (
           <Card key={it.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}><span style={{ fontSize: 22 }}>{it.emoji}</span><div style={{ fontWeight: 700 }}>{it.title}</div><PointBadge value={it[numField]} small />{habit && it.isHabit && <Pill color={C.flame}>🔁 {ruleSummary(it)}</Pill>}</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}><span style={{ fontSize: 22 }}>{it.emoji}</span><div style={{ fontWeight: 700 }}>{it.title}</div><PointBadge value={it[numField]} small />{habit && it.isHabit && <Pill color={C.flame}>🔁 {ruleSummary(it)}</Pill>}{childSelect && it.childIds && it.childIds.length > 0 && <Pill color={C.primary}>{it.childIds.map((id) => { const c = childSelect.find((x) => x.id === id); return c ? c.emoji : ""; }).join("")}</Pill>}</div>
             <div style={{ display: "flex", gap: 6 }}><button onClick={() => setForm({ ...it })} style={iconBtn}><Icon name="pencil" size={15} color={C.ink} /></button><button onClick={() => onDelete(it.id)} style={iconBtn}><Icon name="trash" size={15} color={C.red} /></button></div>
           </Card>
         ))}
@@ -656,6 +691,16 @@ function ListEditor({ items, label, fields, onSave, onDelete, accent, hint, habi
           <Label>名前</Label><input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} style={inputStyle} placeholder={fields.placeholder} />
           <Label>マーク（絵文字）</Label><input value={form.emoji} onChange={(e) => setForm({ ...form, emoji: e.target.value.slice(0, 2) })} style={{ ...inputStyle, width: 70, textAlign: "center", fontSize: 22 }} />
           <Label>{fields.numLabel}</Label><input value={form[numField]} inputMode="numeric" onChange={(e) => { const v = e.target.value.replace(/\D/g, ""); setForm((f) => { const nf = { ...f }; nf[numField] = v; return nf; }); }} style={inputStyle} />
+          {childSelect && (
+            <React.Fragment>
+              <Label>だれのお手伝い？</Label>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                <button onClick={() => setForm({ ...form, childIds: [] })} style={{ ...chip((!form.childIds || form.childIds.length === 0) ? C.primary : "#fff", (!form.childIds || form.childIds.length === 0) ? "#fff" : C.sub), border: "1px solid " + ((!form.childIds || form.childIds.length === 0) ? C.primary : C.line) }}>全員</button>
+                {childSelect.map((c) => { const on = (form.childIds || []).includes(c.id); return (<button key={c.id} onClick={() => { const cur = form.childIds || []; const nx = on ? cur.filter((x) => x !== c.id) : [...cur, c.id]; setForm({ ...form, childIds: nx }); }} style={{ ...chip(on ? c.color : "#fff", on ? "#fff" : C.sub), border: "1px solid " + (on ? c.color : C.line) }}><span style={{ fontSize: 15 }}>{c.emoji}</span>{c.name}</button>); })}
+              </div>
+              <div style={{ fontSize: 11, color: C.sub, marginTop: 6 }}>「全員」または、このお手伝いをする子を選びます。選んだ子だけのホームに表示されます。</div>
+            </React.Fragment>
+          )}
           {habit && (
             <React.Fragment>
               <div onClick={() => setForm({ ...form, isHabit: !form.isHabit })} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 16, background: "#F7F8FE", borderRadius: 14, padding: "12px 14px", cursor: "pointer" }}>
@@ -698,8 +743,8 @@ function ListEditor({ items, label, fields, onSave, onDelete, accent, hint, habi
 }
 
 function ManageTasks({ data, setData }) {
-  return <ListEditor items={data.tasks} label="お手伝い" accent={C.mint} habit
-    hint="お手伝いの内容・ポイントを自由に変えられます。続けたいものは「習慣」にし、内容に合った続け方のルール（毎日／平日のみ／週◯回）を選べます。"
+  return <ListEditor items={data.tasks} label="お手伝い" accent={C.mint} habit childSelect={data.children}
+    hint="お手伝いの内容・ポイント・担当するお子さんを自由に設定できます。「だれのお手伝い？」で全員か特定の子を選べます。続けたいものは「習慣」にし、続け方のルール（毎日／平日のみ／週◯回）も選べます。"
     fields={{ num: "points", numLabel: "もらえるポイント", placeholder: "例：宿題をする" }}
     onSave={(it) => setData((p) => ({ ...p, tasks: p.tasks.some((x) => x.id === it.id) ? p.tasks.map((x) => x.id === it.id ? it : x) : [...p.tasks, it] }))}
     onDelete={(id) => setData((p) => ({ ...p, tasks: p.tasks.filter((x) => x.id !== id) }))} />;
@@ -744,6 +789,25 @@ function ManageRewards({ data, setData }) {
     </React.Fragment>
   );
 }
+function ManageBonus({ data, setData }) {
+  const [rate, setRate] = useState(String(data.bonusRate == null ? 10 : data.bonusRate));
+  const cm = monthKey(Date.now());
+  const applied = !!(data.bonusApplied || {})[cm];
+  return (
+    <Card>
+      <div style={{ fontWeight: 800, marginBottom: 4 }}>月末ボーナス（利息）</div>
+      <p style={{ fontSize: 13, color: C.sub, marginTop: 0 }}>月が変わると、保護者ホームに「今月のボーナス」のお知らせが出ます。今もっているポイントの○%（端数は切り上げ）をボーナスとして加えられます。使わずに貯めるほど増える、貯金・投資の練習になります。</p>
+      <Label>ボーナスの割合（％）</Label>
+      <input value={rate} inputMode="numeric" onChange={(e) => setRate(e.target.value.replace(/\D/g, ""))} style={inputStyle} placeholder="例：10" />
+      <div style={{ fontSize: 11, color: C.sub, marginTop: 6 }}>例：10％なら、100ポイントで＋10、155ポイントで＋16（切り上げ）。0にするとボーナスなしです。</div>
+      <button onClick={() => setData((p) => ({ ...p, bonusRate: Number(rate) || 0 }))} style={{ ...btn(C.ink, "100%"), marginTop: 12 }}>保存する</button>
+      <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px solid " + C.line }}>
+        <div style={{ fontSize: 13, color: C.sub }}>今月（{cm}）のボーナス：{applied ? "処理ずみ" : "まだ"}</div>
+        {applied && <button onClick={() => setData((p) => { const ba = { ...(p.bonusApplied || {}) }; delete ba[cm]; return { ...p, bonusApplied: ba }; })} style={{ ...chip("#fff", C.primary), border: "1px solid " + C.primary, marginTop: 8 }}>もう一度お知らせを出す</button>}
+      </div>
+    </Card>
+  );
+}
 function ManageSecurity({ data, setData }) {
   const [pin, setPin] = useState(data.pin);
   return (
@@ -763,7 +827,7 @@ function RecentHistory({ data, childId, limit }) {
   return (
     <React.Fragment>
       <SectionTitle icon={<Icon name="star" size={18} color={C.sun} />}>最近の記録</SectionTitle>
-      <div style={{ display: "grid", gap: 8 }}>{items.map((h) => { const child = data.children.find((c) => c.id === h.childId); const earn = h.type === "earn"; return (<div key={h.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#fff", borderRadius: 14, padding: "10px 14px", border: "1px solid " + C.line }}><div style={{ display: "flex", alignItems: "center", gap: 10 }}><span style={{ fontSize: 18 }}>{child ? child.emoji : ""}</span><div><div style={{ fontWeight: 700, fontSize: 14 }}>{h.label}</div><div style={{ fontSize: 11, color: C.sub }}>{child ? child.name : ""}・{fmtDay(h.ts)}</div></div></div><span style={{ fontWeight: 800, color: earn ? C.mint : C.red }}>{earn ? "+" : "−"}{h.amount}P</span></div>); })}</div>
+      <div style={{ display: "grid", gap: 8 }}>{items.map((h) => { const child = data.children.find((c) => c.id === h.childId); const earn = h.type === "earn" || h.type === "bonus"; return (<div key={h.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#fff", borderRadius: 14, padding: "10px 14px", border: "1px solid " + C.line }}><div style={{ display: "flex", alignItems: "center", gap: 10 }}><span style={{ fontSize: 18 }}>{child ? child.emoji : ""}</span><div><div style={{ fontWeight: 700, fontSize: 14 }}>{h.label}</div><div style={{ fontSize: 11, color: C.sub }}>{child ? child.name : ""}・{fmtDay(h.ts)}</div></div></div><span style={{ fontWeight: 800, color: earn ? C.mint : C.red }}>{earn ? "+" : "−"}{h.amount}P</span></div>); })}</div>
     </React.Fragment>
   );
 }
