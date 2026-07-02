@@ -67,6 +67,37 @@ const tasksFor = (data, childId) => data.tasks.filter((t) => !t.childIds || t.ch
 const isWeekend = (ts) => { const g = new Date(ts).getDay(); return g === 0 || g === 6; };
 const startOfWeek = (ts) => { const d = new Date(startOfDay(ts)); const wd = (d.getDay() + 6) % 7; return startOfDay(d.getTime() - wd * ONE_DAY); };
 const earnedOf = (history, id) => history.filter((h) => h.childId === id && h.type === "earn").reduce((s, h) => s + h.amount, 0);
+const monthLabel = (ts) => { const d = new Date(ts); return d.getFullYear() + "年" + (d.getMonth() + 1) + "月"; };
+const computeReport = (data, childId) => {
+    const cm = monthKey(Date.now());
+    let mEarn = 0, mSpend = 0, mPenalty = 0, bonusAll = 0, earnAll = 0;
+    data.history.forEach((h) => {
+        if (h.childId !== childId)
+            return;
+        const inMonth = monthKey(h.ts) === cm;
+        if (h.type === "earn") {
+            earnAll += h.amount;
+            if (inMonth)
+                mEarn += h.amount;
+        }
+        else if (h.type === "spend") {
+            if (inMonth)
+                mSpend += h.amount;
+        }
+        else if (h.type === "penalty") {
+            if (inMonth)
+                mPenalty += h.amount;
+        }
+        else if (h.type === "bonus") {
+            bonusAll += h.amount;
+        }
+    });
+    const child = data.children.find((c) => c.id === childId);
+    const balance = child ? child.points : 0;
+    const withoutInterest = Math.max(0, balance - bonusAll);
+    const growPct = withoutInterest > 0 ? Math.round((bonusAll / withoutInterest) * 100) : 0;
+    return { cm, mEarn, mSpend, mPenalty, monthNet: mEarn - mSpend - mPenalty, balance, bonusAll, withoutInterest, growPct, earnAll };
+};
 const levelOf = (earned) => Math.floor(earned / 100) + 1;
 const rewardById = (data, id) => data.rewards.find((r) => r.id === id) || null;
 const goalRewardOf = (data, child) => (child && child.goalRewardId ? rewardById(data, child.goalRewardId) : null);
@@ -282,28 +313,38 @@ function Icon({ name, size = 20, color = C.ink, strokeWidth = 2, style }) {
     }
 }
 /* ---------- 自前ラインチャート ---------- */
-function LineChartMini({ series, color, height = 210 }) {
-    if (!series || series.length < 2)
+function LineChartMini({ base, intr, baseColor, intrColor, height = 224 }) {
+    if (!base || base.length < 2)
         return React.createElement("p", { style: { color: C.sub, textAlign: "center", padding: "30px 0" } }, "\u8A18\u9332\u304C\u305F\u307E\u308B\u3068\u30B0\u30E9\u30D5\u304C\u51FA\u307E\u3059");
-    const W = 320, H = height, padL = 30, padR = 10, padT = 12, padB = 22;
+    const n = base.length;
+    const W = 320, H = height, padL = 30, padR = 10, padT = 28, padB = 22;
     const iw = W - padL - padR, ih = H - padT - padB;
-    const max = Math.max.apply(null, series.map((s) => s.total).concat([1]));
-    const X = (i) => padL + (series.length === 1 ? 0 : (i / (series.length - 1)) * iw);
+    const max = Math.max.apply(null, intr.map((d) => d.total).concat(base.map((d) => d.total)).concat([1]));
+    const X = (i) => padL + (n === 1 ? 0 : (i / (n - 1)) * iw);
     const Y = (v) => padT + ih - (v / max) * ih;
-    const line = series.map((s, i) => X(i) + "," + Y(s.total)).join(" ");
-    const area = padL + "," + (padT + ih) + " " + line + " " + X(series.length - 1) + "," + (padT + ih);
-    const last = series[series.length - 1];
+    const ptsBase = base.map((d, i) => X(i) + "," + Y(d.total)).join(" ");
+    const ptsIntr = intr.map((d, i) => X(i) + "," + Y(d.total)).join(" ");
+    const top = intr.map((d, i) => X(i) + "," + Y(d.total));
+    const bot = base.map((d, i) => X(i) + "," + Y(d.total));
+    const gap = top.concat(bot.slice().reverse()).join(" ");
+    const lastB = base[n - 1], lastI = intr[n - 1];
     return (React.createElement("svg", { viewBox: "0 0 " + W + " " + H, style: { width: "100%", height: "auto", display: "block" } },
+        React.createElement("rect", { x: padL, y: 6, width: 12, height: 4, rx: 2, fill: baseColor }),
+        React.createElement("text", { x: padL + 16, y: 10, fontSize: "10", fill: C.sub }, "\u304A\u624B\u4F1D\u3044"),
+        React.createElement("rect", { x: padL + 86, y: 6, width: 12, height: 4, rx: 2, fill: intrColor }),
+        React.createElement("text", { x: padL + 102, y: 10, fontSize: "10", fill: C.sub }, "\u5229\u606F\u3053\u307F"),
         React.createElement("line", { x1: padL, y1: padT, x2: padL, y2: padT + ih, stroke: C.line }),
         React.createElement("line", { x1: padL, y1: padT + ih, x2: W - padR, y2: padT + ih, stroke: C.line }),
         React.createElement("line", { x1: padL, y1: padT + ih / 2, x2: W - padR, y2: padT + ih / 2, stroke: C.line, strokeDasharray: "3 4" }),
-        React.createElement("polygon", { points: area, fill: color, opacity: "0.12" }),
-        React.createElement("polyline", { points: line, fill: "none", stroke: color, strokeWidth: "3", strokeLinejoin: "round", strokeLinecap: "round" }),
-        React.createElement("circle", { cx: X(series.length - 1), cy: Y(last.total), r: "4", fill: color }),
+        React.createElement("polygon", { points: gap, fill: intrColor, opacity: "0.18" }),
+        React.createElement("polyline", { points: ptsBase, fill: "none", stroke: baseColor, strokeWidth: "2.6", strokeLinejoin: "round", strokeLinecap: "round" }),
+        React.createElement("polyline", { points: ptsIntr, fill: "none", stroke: intrColor, strokeWidth: "2.6", strokeLinejoin: "round", strokeLinecap: "round" }),
+        React.createElement("circle", { cx: X(n - 1), cy: Y(lastI.total), r: "3.6", fill: intrColor }),
+        React.createElement("circle", { cx: X(n - 1), cy: Y(lastB.total), r: "3.6", fill: baseColor }),
         React.createElement("text", { x: padL - 4, y: padT + 4, textAnchor: "end", fontSize: "10", fill: C.sub }, max),
         React.createElement("text", { x: padL - 4, y: padT + ih, textAnchor: "end", fontSize: "10", fill: C.sub }, "0"),
-        React.createElement("text", { x: padL, y: H - 6, textAnchor: "start", fontSize: "10", fill: C.sub }, series[0].day),
-        React.createElement("text", { x: W - padR, y: H - 6, textAnchor: "end", fontSize: "10", fill: C.sub }, last.day)));
+        React.createElement("text", { x: padL, y: H - 6, textAnchor: "start", fontSize: "10", fill: C.sub }, base[0].day),
+        React.createElement("text", { x: W - padR, y: H - 6, textAnchor: "end", fontSize: "10", fill: C.sub }, lastB.day)));
 }
 /* ---------- 小物UI ---------- */
 function Mascot({ size = 40 }) {
@@ -428,6 +469,8 @@ function ParentArea(props) {
         return React.createElement(GoalView, { data: props.data, setData: props.setData, redeem: props.redeem, editable: true });
     if (tab === "chart")
         return React.createElement(RecordView, { data: props.data, selectedChild: props.selectedChild, setSelectedChild: props.setSelectedChild });
+    if (tab === "report")
+        return React.createElement(ReportView, { data: props.data, selectedChild: props.selectedChild, setSelectedChild: props.setSelectedChild });
     if (tab === "manage")
         return React.createElement(Manage, { data: props.data, setData: props.setData, sub: props.manageSub, setSub: props.setManageSub });
     return null;
@@ -564,7 +607,8 @@ function ChildArea({ tab, data, setData, selectedChild, setSelectedChild, childB
         React.createElement(ChildPicker, { data: data, selected: child.id, onSelect: setSelectedChild, big: true }),
         tab === "home" && React.createElement(ChildHome, { data: data, child: child }),
         tab === "reward" && React.createElement(ChildReward, { data: data, setData: setData, child: child }),
-        tab === "chart" && React.createElement(RecordView, { data: data, selectedChild: child.id, setSelectedChild: setSelectedChild, hidePicker: true })));
+        tab === "chart" && React.createElement(RecordView, { data: data, selectedChild: child.id, setSelectedChild: setSelectedChild, hidePicker: true }),
+        tab === "report" && React.createElement(ReportView, { data: data, selectedChild: child.id, setSelectedChild: setSelectedChild, hidePicker: true, kid: true })));
 }
 function ChildHome({ data, child }) {
     const goal = goalRewardOf(data, child);
@@ -741,29 +785,140 @@ function GoalPicker({ data, childId, onPick, onAdd, onClose }) {
                     onAdd(f); }, style: Object.assign(Object.assign({}, btn(C.primary, "100%")), { marginTop: 12 }) }, "\u8FFD\u52A0\u3057\u3066\u76EE\u6A19\u306B\u3059\u308B"))),
         React.createElement("button", { onClick: () => onPick(null), style: { marginTop: 10, width: "100%", border: "none", background: "transparent", color: C.sub, fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: FONT, padding: "6px 0" } }, "\u76EE\u6A19\u3092\u306A\u3057\u306B\u3059\u308B")));
 }
+function ReportView({ data, selectedChild, setSelectedChild, hidePicker, kid }) {
+    const child = data.children.find((c) => c.id === selectedChild) || data.children[0];
+    const r = computeReport(data, child.id);
+    const net = r.monthNet;
+    const StatCard = ({ emoji, title, sub, value, plus, color, bg }) => (React.createElement("div", { style: { background: bg, borderRadius: 16, padding: "12px 12px", border: "1px solid " + C.line } },
+        React.createElement("div", { style: { fontSize: 12, color: C.sub, fontWeight: 700 } },
+            emoji,
+            " ",
+            title),
+        React.createElement("div", { style: { fontWeight: 900, fontSize: 24, color: color, marginTop: 2 } },
+            plus ? "＋" : "",
+            value,
+            React.createElement("span", { style: { fontSize: 13, fontWeight: 700 } }, "P")),
+        sub && React.createElement("div", { style: { fontSize: 11, color: C.sub, marginTop: 2 } }, sub)));
+    return (React.createElement(React.Fragment, null,
+        React.createElement(SectionTitle, { icon: React.createElement(Icon, { name: "award", size: 18, color: C.sun }) }, "\u304A\u91D1\u306E\u6210\u7E3E\u8868"),
+        !hidePicker && React.createElement(ChildPicker, { data: data, selected: child.id, onSelect: setSelectedChild }),
+        React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", margin: "4px 2px 10px" } },
+            React.createElement("div", { style: { fontWeight: 800 } },
+                child.emoji,
+                " ",
+                child.name),
+            React.createElement(Pill, { color: C.primary }, monthLabel(Date.now()))),
+        React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 } },
+            React.createElement(StatCard, { emoji: "\uD83D\uDCAA", title: "\u304B\u305B\u3050\uFF08\u4ECA\u6708\uFF09", value: r.mEarn, color: C.mint, bg: C.mint + "12", sub: r.mPenalty > 0 ? "注意で −" + r.mPenalty + "P" : "お手伝いでゲット" }),
+            React.createElement(StatCard, { emoji: "\uD83C\uDF81", title: "\u3064\u304B\u3046\uFF08\u4ECA\u6708\uFF09", value: r.mSpend, color: C.grape, bg: C.grape + "12", sub: "\u3054\u307B\u3046\u3073\u4EA4\u63DB" }),
+            React.createElement(StatCard, { emoji: "\uD83C\uDFE6", title: "\u305F\u3081\u308B\uFF08\u4ECA\uFF09", value: r.balance, color: C.primary, bg: C.primary + "12", sub: "\u3044\u307E\u306E\u6301\u3061\u30DD\u30A4\u30F3\u30C8" }),
+            React.createElement(StatCard, { emoji: "\uD83C\uDF31", title: "\u3075\u3084\u3059\uFF08\u7D2F\u8A08\uFF09", value: r.bonusAll, plus: true, color: "#B07400", bg: C.sun + "1f", sub: "\u5229\u606F\u3067\u3075\u3048\u305F\u5408\u8A08" })),
+        React.createElement(Card, { style: { marginTop: 12 } },
+            React.createElement("div", { style: { fontWeight: 800, marginBottom: 8 } },
+                "\u4ECA\u6708\u306E\u53CE\u652F\uFF08",
+                monthLabel(Date.now()),
+                "\uFF09"),
+            React.createElement(Row, { label: "\u304B\u305B\u3050\uFF08\u304A\u624B\u4F1D\u3044\uFF09", value: "＋" + r.mEarn + "P", color: C.mint }),
+            React.createElement(Row, { label: "\u3064\u304B\u3046\uFF08\u3054\u307B\u3046\u3073\uFF09", value: "−" + r.mSpend + "P", color: C.grape }),
+            r.mPenalty > 0 && React.createElement(Row, { label: "\u6CE8\u610F\u3067\u3072\u3044\u305F\u5206", value: "−" + r.mPenalty + "P", color: C.red }),
+            React.createElement("div", { style: { borderTop: "1px solid " + C.line, marginTop: 8, paddingTop: 8, display: "flex", justifyContent: "space-between", fontWeight: 900 } },
+                React.createElement("span", null, "\u5DEE\u5F15"),
+                React.createElement("span", { style: { color: net >= 0 ? C.mint : C.red } },
+                    net >= 0 ? "＋" : "−",
+                    Math.abs(net),
+                    "P")),
+            React.createElement("p", { style: { fontSize: 11, color: C.sub, margin: "8px 0 0" } }, "\u300C\u6CE8\u610F\u3067\u3072\u3044\u305F\u5206\u300D\u306F\u30DD\u30A4\u30F3\u30C8\u3092\u4F7F\u3063\u305F\u308F\u3051\u3067\u306F\u306A\u3044\u306E\u3067\u300C\u3064\u304B\u3046\u300D\u306B\u306F\u542B\u3081\u3066\u3044\u307E\u305B\u3093\uFF08\u304B\u305B\u3050\u306E\u30DE\u30A4\u30CA\u30B9\u9805\u76EE\u3068\u3057\u3066\u8868\u793A\uFF09\u3002")),
+        React.createElement(Card, { style: { marginTop: 12, border: "1.5px solid " + C.sun, background: "#FFFBF0" } },
+            React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6, fontWeight: 800 } },
+                React.createElement(Icon, { name: "coins", size: 18, color: C.sun }),
+                "\u3075\u3084\u3059\u529B\uFF08\u5229\u606F\u306E\u51C4\u3055\uFF09"),
+            r.bonusAll > 0 ? (React.createElement(React.Fragment, null,
+                React.createElement("p", { style: { fontSize: 14, margin: "8px 0 0", lineHeight: 1.7 } },
+                    "\u5229\u606F\u304C\u306A\u3051\u308C\u3070\u3001\u4ECA\u306E\u6301\u3061\u30DD\u30A4\u30F3\u30C8\u306F ",
+                    React.createElement("b", null,
+                        r.withoutInterest,
+                        "P"),
+                    " \u3067\u3057\u305F\u3002 \u30B3\u30C4\u30B3\u30C4\u8CAF\u3081\u305F\u3053\u3068\u3067\u3001\u5229\u606F\u3067 ",
+                    React.createElement("b", { style: { color: "#B07400" } },
+                        "\uFF0B",
+                        r.bonusAll,
+                        "P"),
+                    r.growPct > 0 ? React.createElement("span", null,
+                        "\uFF08",
+                        React.createElement("b", { style: { color: "#B07400" } },
+                            "+",
+                            r.growPct,
+                            "%"),
+                        "\uFF09") : null,
+                    " \u5897\u3048\u307E\u3057\u305F\u3002"),
+                React.createElement("div", { style: { marginTop: 10, background: "#fff", borderRadius: 12, overflow: "hidden", border: "1px solid " + C.line } },
+                    React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8, padding: "8px 10px" } },
+                        React.createElement("span", { style: { fontSize: 12, color: C.sub, width: 76 } }, "\u5229\u606F\u306A\u3057"),
+                        React.createElement("div", { style: { flex: 1, background: C.line, borderRadius: 999, height: 12 } },
+                            React.createElement("div", { style: { width: (r.balance > 0 ? Math.round(r.withoutInterest / r.balance * 100) : 0) + "%", height: "100%", background: child.color, borderRadius: 999 } })),
+                        React.createElement("span", { style: { fontSize: 12, fontWeight: 800, width: 44, textAlign: "right" } },
+                            r.withoutInterest,
+                            "P")),
+                    React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", borderTop: "1px solid " + C.line } },
+                        React.createElement("span", { style: { fontSize: 12, color: C.sub, width: 76 } }, "\u5229\u606F\u3053\u307F\uFF08\u4ECA\uFF09"),
+                        React.createElement("div", { style: { flex: 1, background: C.line, borderRadius: 999, height: 12 } },
+                            React.createElement("div", { style: { width: "100%", height: "100%", background: C.sun, borderRadius: 999 } })),
+                        React.createElement("span", { style: { fontSize: 12, fontWeight: 800, width: 44, textAlign: "right" } },
+                            r.balance,
+                            "P"))),
+                React.createElement("p", { style: { fontSize: 12, color: C.sub, margin: "8px 0 0" } }, "\u4F7F\u308F\u305A\u306B\u8CAF\u3081\u3066\u304A\u304F\u307B\u3069\u3001\u5229\u606F\u3067\u3069\u3093\u3069\u3093\u5897\u3048\u3066\u3044\u304D\u307E\u3059\u3002"))) : (React.createElement("p", { style: { fontSize: 13, color: C.sub, margin: "8px 0 0" } },
+                "\u307E\u3060\u5229\u606F\u306F\u3064\u3044\u3066\u3044\u307E\u305B\u3093\u3002\u30DD\u30A4\u30F3\u30C8\u3092\u4F7F\u308F\u305A\u306B\u8CAF\u3081\u3066\u304A\u304F\u3068\u3001\u6708\u672B\u306E\u30DC\u30FC\u30CA\u30B9\uFF08\u5229\u606F\uFF09\u3067\u5897\u3048\u3066\u3044\u304D\u307E\u3059\u3002",
+                kid ? "つかいたい気持ちをすこし我慢して、ためてみよう！" : "")))));
+}
+function Row({ label, value, color }) {
+    return React.createElement("div", { style: { display: "flex", justifyContent: "space-between", padding: "3px 0", fontSize: 14 } },
+        React.createElement("span", { style: { color: C.ink } }, label),
+        React.createElement("span", { style: { fontWeight: 800, color: color } }, value));
+}
 function RecordView({ data, selectedChild, setSelectedChild, hidePicker }) {
     const child = data.children.find((c) => c.id === selectedChild) || data.children[0];
-    const series = useMemo(() => {
-        const earns = data.history.filter((h) => h.childId === child.id && h.type === "earn").sort((a, b) => a.ts - b.ts);
-        const byDay = {};
-        let total = 0;
-        earns.forEach((e) => { total += e.amount; byDay[fmtDay(e.ts)] = total; });
-        return Object.keys(byDay).map((day) => ({ day, total: byDay[day] }));
+    const calc = useMemo(() => {
+        const evs = data.history.filter((h) => h.childId === child.id && (h.type === "earn" || h.type === "bonus")).sort((a, b) => a.ts - b.ts);
+        let be = 0, it = 0, te = 0, tb = 0;
+        const base = [], intr = [];
+        evs.forEach((e) => {
+            if (e.type === "earn") {
+                be += e.amount;
+                te += e.amount;
+            }
+            else {
+                tb += e.amount;
+            }
+            it += e.amount;
+            base.push({ day: fmtDay(e.ts), total: be });
+            intr.push({ day: fmtDay(e.ts), total: it });
+        });
+        return { base, intr, totalEarn: te, totalBonus: tb };
     }, [data, child]);
-    const totalEarned = series.length ? series[series.length - 1].total : 0;
     const habits = tasksFor(data, child.id).filter((t) => t.isHabit);
     return (React.createElement(React.Fragment, null,
         React.createElement(SectionTitle, { icon: React.createElement(Icon, { name: "chart", size: 18, color: C.mint }) }, "\u304C\u3093\u3070\u308A\u306E\u8A18\u9332"),
         !hidePicker && React.createElement(ChildPicker, { data: data, selected: child.id, onSelect: setSelectedChild }),
         React.createElement(Card, { style: { marginTop: 8 } },
-            React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 } },
+            React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 } },
                 React.createElement("span", { style: { fontWeight: 800 } },
                     child.name,
                     " \u306E\u7D2F\u8A08\u30DD\u30A4\u30F3\u30C8"),
-                React.createElement("div", { style: { display: "flex", gap: 8, alignItems: "center" } },
-                    React.createElement(LevelBadge, { earned: totalEarned }),
-                    React.createElement(PointBadge, { value: totalEarned, small: true }))),
-            React.createElement(LineChartMini, { series: series, color: child.color })),
+                React.createElement(LevelBadge, { earned: calc.totalEarn })),
+            React.createElement("div", { style: { display: "flex", gap: 8, margin: "6px 0 10px" } },
+                React.createElement("div", { style: { flex: 1, background: child.color + "12", borderRadius: 12, padding: "8px 10px" } },
+                    React.createElement("div", { style: { fontSize: 11, color: C.sub } }, "\u304A\u624B\u4F1D\u3044\u3067\u305F\u3081\u305F"),
+                    React.createElement("div", { style: { fontWeight: 800, color: child.color, fontSize: 18 } },
+                        calc.totalEarn,
+                        React.createElement("span", { style: { fontSize: 12 } }, "P"))),
+                React.createElement("div", { style: { flex: 1, background: C.sun + "1f", borderRadius: 12, padding: "8px 10px" } },
+                    React.createElement("div", { style: { fontSize: 11, color: C.sub } }, "\u5229\u606F\u3067\u3075\u3048\u305F"),
+                    React.createElement("div", { style: { fontWeight: 800, color: "#B07400", fontSize: 18 } },
+                        "\uFF0B",
+                        calc.totalBonus,
+                        React.createElement("span", { style: { fontSize: 12 } }, "P")))),
+            React.createElement(LineChartMini, { base: calc.base, intr: calc.intr, baseColor: child.color, intrColor: C.sun }),
+            React.createElement("p", { style: { fontSize: 11, color: C.sub, marginTop: 6, marginBottom: 0 } }, "\u4E0B\u306E\u7DDA\u304C\u300C\u304A\u624B\u4F1D\u3044\u3067\u305F\u3081\u305F\u5206\u300D\u3001\u4E0A\u306E\u7DDA\u304C\u300C\u5229\u606F\u3053\u307F\u300D\u30022\u672C\u306E\u3059\u304D\u9593\uFF08\u91D1\u8272\uFF09\u304C\u3001\u8CAF\u3081\u3066\u304A\u304F\u3053\u3068\u3067\u5229\u606F\u3067\u5897\u3048\u305F\u5206\u3067\u3059\u3002")),
         habits.length > 0 && (React.createElement(React.Fragment, null,
             React.createElement(SectionTitle, { icon: React.createElement(Icon, { name: "flame", size: 18, color: C.flame }) }, "\u7FD2\u6163\u306E\u8A18\u9332"),
             React.createElement("div", { style: { display: "grid", gap: 12 } }, habits.map((t) => React.createElement(HabitCard, { key: t.id, data: data, child: child, task: t })))))));
@@ -1054,8 +1209,8 @@ function RecentHistory({ data, childId, limit }) {
                 "P"))); }))));
 }
 function BottomNav({ mode, tab, setTab }) {
-    const parent = [["home", "ホーム", "home"], ["reward", "ごほうび", "gift"], ["goal", "目標", "target"], ["chart", "記録", "chart"], ["manage", "管理", "settings"]];
-    const child = [["home", "ポイント", "home"], ["reward", "ごほうび", "gift"], ["chart", "記録", "chart"]];
+    const parent = [["home", "ホーム", "home"], ["reward", "ごほうび", "gift"], ["goal", "目標", "target"], ["report", "成績表", "award"], ["chart", "記録", "chart"], ["manage", "管理", "settings"]];
+    const child = [["home", "ポイント", "home"], ["reward", "ごほうび", "gift"], ["report", "成績表", "award"], ["chart", "記録", "chart"]];
     const nav = mode === "parent" ? parent : child;
     return (React.createElement("nav", { style: { position: "fixed", bottom: 0, left: 0, right: 0, background: "#fff", borderTop: "1px solid " + C.line, display: "flex", justifyContent: "space-around", padding: "8px 4px calc(12px + env(safe-area-inset-bottom))", maxWidth: 480, margin: "0 auto" } }, nav.map((it) => { const k = it[0], label = it[1], ic = it[2]; const on = tab === k; return (React.createElement("button", { key: k, onClick: () => setTab(k), style: { border: "none", background: "none", cursor: "pointer", fontFamily: FONT, display: "flex", flexDirection: "column", alignItems: "center", gap: 3, color: on ? C.primary : C.sub, fontWeight: on ? 800 : 600, fontSize: 11, flex: 1 } },
         React.createElement(Icon, { name: ic, size: 22, color: on ? C.primary : C.sub }),
