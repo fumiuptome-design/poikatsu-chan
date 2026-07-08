@@ -47,6 +47,15 @@
 
 <script>
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 const { useState, useEffect, useRef, useMemo } = React;
 const STORAGE_KEY = "poikatsu-app-v1";
 const FONT = "'Hiragino Maru Gothic ProN','Hiragino Kaku Gothic ProN','Rounded Mplus 1c',system-ui,sans-serif";
@@ -556,7 +565,7 @@ function ProfileMenu({ store, setStore, setTab, setMode, onClose }) {
     }
     catch (e) { } };
     const downloadText = (t, fname) => { try {
-        const blob = new Blob([t], { type: "application/json" });
+        const blob = new Blob([t], { type: "text/plain" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
@@ -567,6 +576,25 @@ function ProfileMenu({ store, setStore, setTab, setMode, onClose }) {
         setTimeout(() => URL.revokeObjectURL(url), 1000);
     }
     catch (e) { } };
+    const shareData = (t) => __awaiter(this, void 0, void 0, function* () {
+        const fname = "poikatsu-share.txt";
+        try {
+            const file = new File([t], fname, { type: "text/plain" });
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                yield navigator.share({ files: [file], title: "ポイ活ちゃん 共有データ" });
+                return;
+            }
+        }
+        catch (e) { }
+        try {
+            if (navigator.share) {
+                yield navigator.share({ title: "ポイ活ちゃん 共有データ", text: t });
+                return;
+            }
+        }
+        catch (e) { }
+        downloadText(t, fname);
+    });
     const doImport = (text, nm) => {
         let parsed;
         try {
@@ -632,8 +660,9 @@ function ProfileMenu({ store, setStore, setTab, setMode, onClose }) {
                 React.createElement("textarea", { readOnly: true, value: expText, onFocus: (e) => e.target.select(), style: Object.assign(Object.assign({}, inputStyle), { height: 96, fontSize: 11 }) }),
                 React.createElement("div", { style: { display: "flex", gap: 8, marginTop: 8 } },
                     React.createElement("button", { onClick: () => copyText(expText), style: btn(C.mint, "50%") }, "\u30B3\u30D4\u30FC"),
-                    React.createElement("button", { onClick: () => downloadText(expText, "poikatsu-share.json"), style: btn(C.grape, "50%") }, "\u30D5\u30A1\u30A4\u30EB\u3067\u4FDD\u5B58")),
-                React.createElement("p", { style: { fontSize: 11, color: C.sub, marginTop: 8 } }, "\u30B3\u30D4\u30FC\u3057\u305F\u6587\u5B57\u3092LINE\u306B\u8CBC\u308A\u4ED8\u3051\u3066\u9001\u308B\u3001\u307E\u305F\u306F\u30D5\u30A1\u30A4\u30EB\u3092\u9001\u3063\u3066\u304F\u3060\u3055\u3044\u3002"))) : null,
+                    React.createElement("button", { onClick: () => shareData(expText), style: btn(C.grape, "50%") }, "\u9001\u308B\uFF08LINE\u306A\u3069\uFF09")),
+                React.createElement("button", { onClick: () => downloadText(expText, "poikatsu-share.txt"), style: Object.assign(Object.assign({}, chip("#fff", C.sub)), { border: "1px solid " + C.line, marginTop: 8 }) }, "\u30D5\u30A1\u30A4\u30EB(.txt)\u3067\u4FDD\u5B58"),
+                React.createElement("p", { style: { fontSize: 11, color: C.sub, marginTop: 8 } }, "\u300C\u9001\u308B\u300D\u3067LINE\u7B49\u306B\u76F4\u63A5\u5171\u6709\u3067\u304D\u307E\u3059\u3002\u3046\u307E\u304F\u3044\u304B\u306A\u3044\u3068\u304D\u306F\u300C\u30B3\u30D4\u30FC\u300D\u3057\u3066LINE\u306B\u8CBC\u308A\u4ED8\u3051\u3001\u307E\u305F\u306F\u300C\u30D5\u30A1\u30A4\u30EB(.txt)\u3067\u4FDD\u5B58\u300D\u3057\u3066\u9001\u3063\u3066\u304F\u3060\u3055\u3044\u3002"))) : null,
             React.createElement("button", { onClick: () => setView("list"), style: Object.assign(Object.assign({}, chip("#fff", C.sub)), { border: "1px solid " + C.line, marginTop: 12 }) }, "\u3082\u3069\u308B"))),
         view === "import" && (React.createElement(React.Fragment, null,
             React.createElement("h3", { style: { marginTop: 0 } }, "\u5171\u6709\u30C7\u30FC\u30BF\u3092\u8AAD\u307F\u8FBC\u3080\uFF08\u95B2\u89A7\u7528\uFF09"),
@@ -644,7 +673,7 @@ function ProfileMenu({ store, setStore, setTab, setMode, onClose }) {
             React.createElement("textarea", { value: impText, onChange: (e) => setImpText(e.target.value), style: Object.assign(Object.assign({}, inputStyle), { height: 96, fontSize: 11 }), placeholder: "LINE\u3067\u53D7\u3051\u53D6\u3063\u305F\u6587\u5B57\u3092\u8CBC\u308A\u4ED8\u3051" }),
             React.createElement("button", { onClick: () => doImport(impText, impName), disabled: !impText.trim(), style: Object.assign(Object.assign({}, btn(C.grape, "100%")), { marginTop: 10 }) }, "\u8CBC\u308A\u4ED8\u3051\u305F\u30C7\u30FC\u30BF\u3092\u8AAD\u307F\u8FBC\u3080"),
             React.createElement(Label, null, "\u307E\u305F\u306F\u30D5\u30A1\u30A4\u30EB\u304B\u3089"),
-            React.createElement("input", { type: "file", accept: ".json,.txt,application/json", onChange: onFile, style: { fontSize: 13 } }),
+            React.createElement("input", { type: "file", accept: ".txt,.json,text/plain,application/json", onChange: onFile, style: { fontSize: 13 } }),
             React.createElement("div", { style: { marginTop: 12 } },
                 React.createElement("button", { onClick: () => setView("list"), style: Object.assign(Object.assign({}, chip("#fff", C.sub)), { border: "1px solid " + C.line }) }, "\u3082\u3069\u308B"))))));
 }
