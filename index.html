@@ -552,8 +552,10 @@ function ProfileMenu({ store, setStore, setTab, setMode, onClose }) {
     const [expAll, setExpAll] = useState(true);
     const [expSel, setExpSel] = useState([]);
     const [expText, setExpText] = useState("");
+    const [expName, setExpName] = useState("");
     const [impText, setImpText] = useState("");
     const [impName, setImpName] = useState("");
+    const fileName = () => { let n = (expName || "").trim() || (active.name || "poikatsu") + "-共有"; n = n.replace(/[\\/:*?"<>|]/g, "").replace(/\s+/g, "_"); return n + ".txt"; };
     const switchTo = (id) => { setStore((s) => (Object.assign(Object.assign({}, s), { activeId: id }))); setTab("home"); setMode("child"); onClose(); };
     const rename = () => { const nm = name.trim() || active.name; setStore((s) => (Object.assign(Object.assign({}, s), { profiles: s.profiles.map((p) => p.id === s.activeId ? Object.assign(Object.assign({}, p), { name: nm }) : p) }))); setRenaming(false); };
     const remove = (id) => { if (!confirm("このデータを消しますか？（元に戻せません）"))
@@ -576,8 +578,8 @@ function ProfileMenu({ store, setStore, setTab, setMode, onClose }) {
         setTimeout(() => URL.revokeObjectURL(url), 1000);
     }
     catch (e) { } };
-    const shareData = (t) => __awaiter(this, void 0, void 0, function* () {
-        const fname = "poikatsu-share.txt";
+    const shareData = (t, fname) => __awaiter(this, void 0, void 0, function* () {
+        fname = fname || "poikatsu-共有.txt";
         try {
             const file = new File([t], fname, { type: "text/plain" });
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -656,13 +658,17 @@ function ProfileMenu({ store, setStore, setTab, setMode, onClose }) {
             React.createElement("div", { style: { fontSize: 11, color: C.sub, marginTop: 6 } }, "\u300C\u305C\u3093\u3076\u300D\u304B\u3001\u5171\u6709\u3057\u305F\u3044\u304A\u5B50\u3055\u3093\u3092\u9078\u3073\u307E\u3059\uFF08\u8907\u6570\u53EF\uFF09\u3002"),
             React.createElement("button", { onClick: doExport, disabled: !expAll && expSel.length === 0, style: Object.assign(Object.assign({}, btn(C.primary, "100%")), { marginTop: 12 }) }, "\u66F8\u304D\u51FA\u3059"),
             expText ? (React.createElement(React.Fragment, null,
+                React.createElement(Label, null, "\u30D5\u30A1\u30A4\u30EB\u540D"),
+                React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6 } },
+                    React.createElement("input", { value: expName, onChange: (e) => setExpName(e.target.value), style: inputStyle, placeholder: "\u4F8B\uFF1A\u307F\u306A\u307F\u306E\u30DD\u30A4\u30F3\u30C8" }),
+                    React.createElement("span", { style: { fontSize: 13, color: C.sub } }, ".txt")),
                 React.createElement(Label, null, "\u5171\u6709\u30C7\u30FC\u30BF\uFF08\u30B3\u30D4\u30FC\u3057\u3066\u9001\u308B\uFF09"),
                 React.createElement("textarea", { readOnly: true, value: expText, onFocus: (e) => e.target.select(), style: Object.assign(Object.assign({}, inputStyle), { height: 96, fontSize: 11 }) }),
                 React.createElement("div", { style: { display: "flex", gap: 8, marginTop: 8 } },
                     React.createElement("button", { onClick: () => copyText(expText), style: btn(C.mint, "50%") }, "\u30B3\u30D4\u30FC"),
-                    React.createElement("button", { onClick: () => shareData(expText), style: btn(C.grape, "50%") }, "\u9001\u308B\uFF08LINE\u306A\u3069\uFF09")),
-                React.createElement("button", { onClick: () => downloadText(expText, "poikatsu-share.txt"), style: Object.assign(Object.assign({}, chip("#fff", C.sub)), { border: "1px solid " + C.line, marginTop: 8 }) }, "\u30D5\u30A1\u30A4\u30EB(.txt)\u3067\u4FDD\u5B58"),
-                React.createElement("p", { style: { fontSize: 11, color: C.sub, marginTop: 8 } }, "\u300C\u9001\u308B\u300D\u3067LINE\u7B49\u306B\u76F4\u63A5\u5171\u6709\u3067\u304D\u307E\u3059\u3002\u3046\u307E\u304F\u3044\u304B\u306A\u3044\u3068\u304D\u306F\u300C\u30B3\u30D4\u30FC\u300D\u3057\u3066LINE\u306B\u8CBC\u308A\u4ED8\u3051\u3001\u307E\u305F\u306F\u300C\u30D5\u30A1\u30A4\u30EB(.txt)\u3067\u4FDD\u5B58\u300D\u3057\u3066\u9001\u3063\u3066\u304F\u3060\u3055\u3044\u3002"))) : null,
+                    React.createElement("button", { onClick: () => shareData(expText, fileName()), style: btn(C.grape, "50%") }, "\u9001\u308B\uFF08LINE\u306A\u3069\uFF09")),
+                React.createElement("button", { onClick: () => downloadText(expText, fileName()), style: Object.assign(Object.assign({}, chip("#fff", C.sub)), { border: "1px solid " + C.line, marginTop: 8 }) }, "\u30D5\u30A1\u30A4\u30EB(.txt)\u3067\u4FDD\u5B58"),
+                React.createElement("p", { style: { fontSize: 11, color: C.sub, marginTop: 8 } }, "\u30D5\u30A1\u30A4\u30EB\u540D\u3092\u5165\u308C\u308B\u3068\u3001\u305D\u306E\u540D\u524D\u3067\u9001\u308B\u30FB\u4FDD\u5B58\u3067\u304D\u307E\u3059\uFF08\u672A\u5165\u529B\u306A\u3089\u81EA\u52D5\u306E\u540D\u524D\u306B\u306A\u308A\u307E\u3059\uFF09\u3002\u300C\u9001\u308B\u300D\u3067LINE\u7B49\u306B\u76F4\u63A5\u5171\u6709\u3067\u304D\u307E\u3059\u3002"))) : null,
             React.createElement("button", { onClick: () => setView("list"), style: Object.assign(Object.assign({}, chip("#fff", C.sub)), { border: "1px solid " + C.line, marginTop: 12 }) }, "\u3082\u3069\u308B"))),
         view === "import" && (React.createElement(React.Fragment, null,
             React.createElement("h3", { style: { marginTop: 0 } }, "\u5171\u6709\u30C7\u30FC\u30BF\u3092\u8AAD\u307F\u8FBC\u3080\uFF08\u95B2\u89A7\u7528\uFF09"),
